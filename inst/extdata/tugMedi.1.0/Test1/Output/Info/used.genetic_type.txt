@@ -1,0 +1,4 @@
+gene	type	pom	del	dup	mode.pom	mode.del	mode.dup
+APC	s	0.01	0.8	0	R	R	N
+KRAS	o	1e-04	0	0.8	D	N	D
+TP53	dn	0.01	0.8	0	D	R	N

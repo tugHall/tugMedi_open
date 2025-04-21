@@ -1,0 +1,20 @@
+#Parameter	Value 
+input.prms	'./Input/parameters.txt'
+input.Rother	'./Input/Rother.txt'
+input.CCDSdatabase	'./Input/DATA/CCDS.current.my.txt'
+
+out	'./Input/EF.Rother.txt'
+CNA_presence	F
+N_mut	100
+
+dist$EEL$spec	'exp'
+#dist$EEL$spec	'gamma'
+#dist$EEL$spec	'weibull'
+# shape: used as overdispersion prm with mean unchanged
+#dist$EEL$shape	0.8
+
+#N_pom$dist$spec	'sample'
+#N_pom$dist$x	c(5, 5)
+#N_pom$dist$prob	rep(1, 2)
+#N_pom$ndiv	1
+

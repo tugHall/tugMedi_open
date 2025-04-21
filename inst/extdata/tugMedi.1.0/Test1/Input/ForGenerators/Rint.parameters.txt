@@ -1,0 +1,12 @@
+#Parameter	Value 
+skeleton	./Input/ForGenerators/Rint.skeleton.txt
+out	./Input/Rint.txt
+
+dist$Type[[ 'APC' ]]$spec	sample
+dist$Type[[ 'APC' ]]$x	c('s', 'dn')
+dist$Type[[ 'APC' ]]$prob	c(1, 1)
+
+dist$Type[[ 'TP53' ]]$spec	sample
+dist$Type[[ 'TP53' ]]$x	c('s', 'o', 'dn')
+dist$Type[[ 'TP53' ]]$prob	c(1, 1, 1)
+

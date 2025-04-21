@@ -1,0 +1,14 @@
+#Parameter	Value
+input.cloneout	'./Output/cloneout.txt'
+out	'./Output/cloneout.realTime.txt'
+
+# either VDT or realTumorSize is necessary.
+VDT$n1	1e3
+VDT$n2	1e4
+VDT$t1	20
+VDT$t2	30
+VDT$VDT.days	200
+
+outUnit	'year'
+col.replace	F
+

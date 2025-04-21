@@ -1,0 +1,19 @@
+#Parameter	Value 
+skeleton	./Input/ForGenerators/EF.Rint.skeleton.txt
+out	./Input/EF.Rint.txt
+
+dist$Time_step$spec	'norm'
+dist$Time_step$a	0
+dist$Time_step$b	Inf
+dist$Time_step$mean	c( M2=8 )
+dist$Time_step$sd	c( M2=1 )
+
+#dist$Time_step$spec	'sample'
+#dist$Time_step$x	2:6
+#dist$Time_step$prob	rep(1, 5)
+
+
+dist$Pchr$spec	sample
+dist$Pchr$x	c(1, 2)
+dist$Pchr$prob	c(1, 1)
+

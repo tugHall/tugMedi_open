@@ -1,0 +1,2 @@
+exit_reason	censor_time_step
+exit_reason	censor_time_step
