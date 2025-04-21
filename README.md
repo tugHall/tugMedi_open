@@ -2,7 +2,7 @@
 
 # tugMedi
 
-[![License](https://img.shields.io/badge/License-Nonprofit-orange.svg)](https://github.com/tugHall/tugMedi/blob/main/LICENSE.md)
+[![License](https://img.shields.io/badge/License-Nonprofit-orange.svg)](https://github.com/tugHall/tugMedi_open/blob/main/LICENSE.md)
 
 **tugMedi** *(**tu**mor-**g**enome **Medi**cal)* simulator: a simulator of cancer-cell evolution for personalized medicine based on the genomic data of patients
 
