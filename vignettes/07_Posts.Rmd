@@ -1,0 +1,380 @@
+---
+title: "Post processes"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+    keep_md: true
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Post processes
+
+## VAF
+
+To get VAF ([v]{.underline}ariant [a]{.underline}llele [f]{.underline}requency).
+
+### Input
+
+#### VAF.parameters.txt
+
+\
+
+***Parameters***
+
+-   input.cloneout: File path to cloneout.txt, which is used as input data.
+
+-   input.pom: File path to pointMutations_B.txt, which is used as input data.
+
+-   input.pomA: File path to pointMutations_A.txt, which is used as input data.
+
+-   input.cna: File path to CNAs.txt, which is used as input data.
+
+-   output.VAF: File path to the output, VAF.txt.
+
+-   output.ForVAF: File path to the output, ForVAF.txt.
+
+-   time: Simulation time step at which VAFs are calculated.
+
+    -   Multiple time steps can be input in vector, such as c(1, 10, 35).
+
+    -   Last time step is always output. Time steps over last time step are ignored.
+
+    -   Time steps before the first time step of a simulation are ignored.
+
+-   tumor_content: Assumed tumor content.
+
+    -   Multiple tumor contents can be input in vector, such as c(1.0, 0.8, 0.6).
+
+### Run
+
+`write_VAF( input = './Input/ForPosts/VAF.parameters.txt' )`
+
+This command inputs VAF.parameters.txt and outputs VAF.txt and ForVAF.txt.
+
+### Output
+
+#### Output/VAF/VAF.txt
+
+\
+
+***Columns***
+
+-   Time: Simulation time step at which a VAF is calculated.
+
+-   tumor_content: Tumor content.
+
+-   PointMut_ID: ID of the pom, which is the same as in pointMutations_B.txt.
+
+-   Chr: Chromosome where the pom for the VAF is located.
+
+-   site: Chromosomal position where the pom is located.
+
+-   gene: Name of gene where the pom is located.
+
+-   VAF_primary: VAF in the primary tumor.
+
+-   VAF_metastatic: Same as above for the metastatic tumor.
+
+#### Output/VAF/ForVAF.txt
+
+\
+
+This file contains more detailed information to calculate VAF.\
+
+***Columns***
+
+-   Time: Simulation time step
+
+-   PointMut_ID: ID of the pom, which corresponds to a variant allele B, in contrast to the original allele A.
+
+-   Parental_1or2: Indicates either of the two parental chromosomes where the pom is located.
+
+-   Chr: Chromosome name where the pom is located.
+
+-   Ref_pos: Reference position of the pom. This position is on the coordinate system of the human reference genome.
+
+-   Phys_pos: Physical position of the pom. The physical length of a parental chromosome is extended or shrunk by CNA dups or dels, respectively.
+
+-   Delta: Difference between the reference and physical positions.
+
+-   Copy_number_A: Copy number of the allele A.
+
+-   Copy_number_B: Copy number of the allele B.
+
+-   Gene_name: Name of a gene where the pom is located.\
+
+-   N_speckled_normal: Number of speckled normal cells with the pom.
+
+-   N_primary: Same as above for primary tumor cells.
+
+-   N_metastatic: Same as above for metastatic tumor cells.
+
+-   N_spekled_normal_total: Total number of speckled normal cells.
+
+-   N_primary_total: Same as above for primary tumor cells.
+
+-   N_metastatic_total: Same as above for metastatic tumor cells.
+
+------------------------------------------------------------------------
+
+## TMB
+
+To get TMB ([t]{.underline}umor [m]{.underline}utation [b]{.underline}urden).
+
+### Input
+
+#### TMB.parameters.txt
+
+\
+
+***Parameters***
+
+-   input.Rother: File path to Rother.txt, which is used as input data.
+
+-   input.VAF: File path to VAF.txt, which is used as input data.
+
+-   input.CCDSdatabase: File path to CCDS.current.my.txt, which is used as input data.
+
+-   out: File path to the output.
+
+-   VAF.type: Column name of VAF type in VAF.txt to calculate TMB.
+
+-   VAF.LOD: [L]{.underline}imit [o]{.underline}f [d]{.underline}etection (LOD) of VAF. Poms with VAFs below this value are neglected to calculate TMB.
+
+### Run
+
+`write_TMB( input = './Input/ForPosts/TMB.parameters.txt' )`
+
+This command inputs TMB.parameters.txt and outputs TMB.txt.
+
+### Output
+
+#### Output/Info/TMB.txt
+
+\
+
+***Columns***
+
+-   Time: Simulation time step at which TMB is calculated.
+
+    -   All time steps in VAF.txt are shown.
+
+-   tumor_content: Tumor content.
+
+    -   All tumor contents in VAF.txt are shown.
+
+-   TMBvaf*LOD*%: TMB, the number of poms per Mb, at the LOD of *LOD* value, where the italic text represents a variable.
+
+    -   For example, TMBvaf5% represents TMB at the LOD of 5%.
+
+------------------------------------------------------------------------
+
+## Real time
+
+To convert simulation time into real time.
+
+### Input
+
+#### realTime.parameters.txt
+
+\
+
+***Parameters***
+
+-   input.cloneout: File path to cloneout.txt, which is used as input data.
+
+-   out: File path to the output.
+
+-   outUnit: Either of 'year', 'month', or 'day', which is used as real time unit in the output.
+
+-   col.replace: Whether to replace the column of simulation time with that of real time in the output.
+
+***\* Conversion is based on any of tumor VDT (classical, [v]{.underline}olume [d]{.underline}oubling [t]{.underline}ime), tumor volume, or tumor diameter. Please select one.***\
+
+**VDT based conversion**
+
+-   VDT\$n1: Number of simulated cells at simulation time 1.
+
+-   VDT\$n2: Same as above for simulation time 2.
+
+-   VDT\$t1: Simulation time 1.
+
+-   VDT\$t2: Simulation time 2.
+
+-   VDT\$VDT.days: Known VDT in day, such as 200 (days) for primary colon cancer.
+
+**Volume based conversion**
+
+-   realTumorSize\$V1.mm3: Tumor volume in mm^3^ at real time 1.
+
+-   realTumorSize\$V2.mm3: Same as above for real time 2.
+
+-   realTumorSize\$Ntype: Column name indicating the number of simulated cells in cloneout.txt, such as 'N_primary' and 'N_metastatic'.
+
+-   realTumorSize\$deltaT.days: Real time 2 minus real time 1 in day.
+
+**Diameter based conversion**
+
+-   realTumorSize\$LD1.mm: Long diameter of tumor in mm at real time 1.
+
+-   realTumorSize\$SD1.mm: Same as above for short diameter.
+
+-   realTumorSize\$LD2.mm: Long diameter of tumor in mm at real time 2.
+
+-   realTumorSize\$SD2.mm: Same as above for short diameter.
+
+-   realTumorSize\$Ntype: Same as in Volume based conversion.
+
+-   realTumorSize\$deltaT.days: Same as in Volume based conversion.
+
+***\* It is unnecessary to write VDT or realTumorSize when the conversion rate of time units, cnvRate, is given in the function:*** `write_realTime_clone( ..., cnvRate = tau )`
+
+### Run
+
+`tau <- write_realTime_clone( input = './Input/ForPosts/realTime.parameters.txt' )`
+
+This command inputs realTime.parameters.txt, and outputs cloneout.realTime.txt and returns the conversion rate. You can use the obtained conversion rate for successive simulations:
+
+`write_realTime_clone( input = './Input/ForPosts/realTime.parameters.drg.txt', cnvRate = tau )`
+
+### Output
+
+#### Output/cloneout.realTime.txt
+
+\
+
+***Columns***
+
+-   Time.*outUnit*: Real time in unit of *outUnit*, where the italic text represents a variable. For example, Time.year represents real time in year.
+
+    -   This column is added right to the Time column in cloneout.txt.
+
+    -   If col.replace in realTime.parameters.txt is T, the Time column is replaced with this column.
+
+------------------------------------------------------------------------
+
+## Evaluation scores
+
+To evaluate simulated VAFs at **last** simulation time step, based on observed VAFs. Multiple simulation replications are used, typically, after parallel computation.
+
+### Input
+
+#### evals.parameters.txt
+
+\
+
+***Parameters***
+
+-   obs\$sample: Sample (case/patient) ID in observed data.
+
+-   obs\$Rint\$file: File name of observed data on genes in Rint (regions of interest).
+
+-   obs\$Rint\$col.gene: Index of the column to indicate gene name in the above file.
+
+-   obs\$Rint\$col.sample: Same as above for sample ID.
+
+-   obs\$Rint\$col.VAF: Same as above for VAF.
+
+-   obs\$Rother\$file: File name of observed data on genes in Rother (regions other than those of interest).
+
+-   obs\$Rother\$col.gene: Index of the column to indicate gene name in the above file.
+
+-   obs\$Rother\$col.sample: Same as above for sample ID.
+
+-   obs\$Rother\$col.VAF: Same as above for VAF.
+
+-   obs\$Rother\$glob: Glob pattern to capture the names of Rother genes to rename as the same name.
+
+    -   Rother genes are indistinguishable regions where only passenger mutations reside.\
+
+-   sim\$glob: Glob pattern to capture the files of VAF.txt.
+
+-   sim\$type: Column name of VAF type in VAF.txt for evaluation.
+
+-   sim\$tc: Tumor contents present in VAF.txt.
+
+    -   Multiple tumor contents can be input in vector.
+
+-   sim\$n.rep: Number of simulation replications you performed.
+
+    -   Please set it to the number of simulation replications you initially intended. Bad settings of parameter values increase simulation stops, where you will get a smaller number of VAF.txt files than you initially intended. For example, you may try 1000 simulations but may get only 950 VAF.txt files. Please set it to 1000. VAFs of zero values are supplied for the 50 stopped replications like "penalty".
+
+-   sim\$Rother\$glob: Glob pattern to capture the names of Rother genes to rename as the same name.\
+
+-   LOD: Limit of detection (LOD) of VAF. VAFs below this value are *converted to 0*.
+
+-   out.stats: File path to the output, evals.stats.txt.
+
+-   out.obs_sims: File path to the output, evals.obs_sims.txt.
+
+-   survivorToo: TRUE or FALSE to output statistics that are calculated only for survivors (excluding extinct clones), too.
+
+    -   If T, an additional file is output in a modified file name of out.stats with 'survivor'.
+
+    -   out.stats itself has statistics calculated for survivors **PLUS** extinct clones.
+
+### Run
+
+`write_evals( input = './Input/ForPosts/evals.parameters.txt' )`
+
+This command inputs evals.parameters.txt and outputs evals.stats.txt and evals.obs_sims.txt.
+
+### Output
+
+#### Output/Info/evals.stats.txt
+
+\
+
+***Columns***
+
+-   sample: Sample ID.
+
+-   tumor_content: Tumor content.
+
+    -   Only tumor contents included in VAF.txt are shown.
+
+-   id: ID of evaluated VAF.
+
+-   obs: Observed value.
+
+-   sim.mean: Mean of simulated data.
+
+-   sim.med: Median of simulated data.
+
+-   sim.sd: Standard deviation of simulated data.
+
+-   sim.Q1: First quartile of simulated data.
+
+-   sim.Q3: Third quartile of simulated data.
+
+-   ME: Mean error.
+
+-   RMSE: Root mean squared error.
+
+#### Output/Info/evals.obs_sims.txt
+
+This file shows the evaluated original data for confirmation, and for visualization to evaluate and for re-use for other evaluation methods.\
+
+***Columns***
+
+-   sample: Sample ID.
+
+-   tumor_content: Tumor content.
+
+-   id: ID of evaluated VAF.
+
+-   obs: Observed VAF value.
+
+-   sim.*replication*: Simulated VAF value of *replication*-th simulation replication.
+
+    -   out.*replication*: out is noted for columns over sim\$n.rep.

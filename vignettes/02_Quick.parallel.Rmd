@@ -1,0 +1,181 @@
+---
+title: "Quick start guide for parallel computing"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Quick start guide for parallel computing
+
+## Run
+
+For parallel computing, let us assume that GNU parallel is available (for `qsub`, see the section of Approximate Bayesian Computation (ABC)). After `copy_test_data()`explained at the previous chapter, move into the test directory of tugMedi.1.0/Test2/ on your OS.
+
+1.  Change the newline code of the files according to your OS.
+
+    -   Newline code for Linux or Win
+
+2.  Grant execute permission to the following script.
+
+    `chmod ugo+x abc.run.sh`
+
+3.  Run a test.
+
+    `bash mcr.cmdsAll.bash`
+
+You will see a small parallel computing of 10 simulations as an example. Then, ABC is automatically processed and again 10 simulations run in parallel with parameters selected by ABC.
+
+Outputs are explained below.
+
+\* Note that this is just an artificial example for explanatory purposes. **The inputs and outputs do not have any biological meanings**.
+
+### What mcr.cmdsAll.bash is
+
+Just a series of simple commands as follows. "mcr" stands for macro.
+
+```         
+bash mcr.input.bash
+bash mcr.remove.bash
+
+
+Rscript abc.a.01_make_list.R abc.01_config.R
+bash abc.b_run_parallel.sh
+Rscript abc.c_make_data.R abc.01_config.R
+Rscript abc.d_exec_calc.R abc.01_config.R
+
+
+Rscript --vanilla --slave ./test2.3_eval.R & 
+
+
+Rscript abc.a.02_make_list.R abc.02_config.R
+bash abc.b_run_parallel.sh
+Rscript abc.c_make_data.R abc.02_config.R
+Rscript abc.d_exec_calc.R abc.02_config.R
+
+
+Rscript --vanilla --slave ./test2.4_eval.R 
+```
+
+Of course, you can execute each command one-by-one, which will be useful for debugging. We will explain these commands below.
+
+### The first two macros
+
+*mcr.input.bash*
+
+Just prepare input data:
+
+```         
+rm -r Input
+cp -r Input.TCGA_7903 Input
+```
+
+*mcr.remove.bash*
+
+Just remove previous settings:
+
+```         
+rm -r run_list.txt
+rm -r log/
+rm -r work/
+
+rm -r ABC1/
+rm -r ABC2/
+rm -r old/
+```
+
+### ABC part
+
+The following commands correspond to the ABC part. The ABC settings are controlled with `abc.*_config.R`. See the section of Approximate Bayesian Computation (ABC) for the details.
+
+```         
+Rscript abc.a.01_make_list.R abc.01_config.R
+bash abc.b_run_parallel.sh
+Rscript abc.c_make_data.R abc.01_config.R
+Rscript abc.d_exec_calc.R abc.01_config.R
+```
+
+```         
+Rscript abc.a.02_make_list.R abc.02_config.R
+bash abc.b_run_parallel.sh
+Rscript abc.c_make_data.R abc.02_config.R
+Rscript abc.d_exec_calc.R abc.02_config.R
+```
+
+### Evaluation part
+
+In this part, it is evaluated how close simulated VAFs are to observed VAFs across simulation replications. See Evaluation scores at the section of Post processes for the details.
+
+```         
+Rscript --vanilla --slave ./test2.3_eval.R & 
+```
+
+```         
+Rscript --vanilla --slave ./test2.4_eval.R 
+```
+
+## Outputs
+
+You will see work/, and ABC1/ and ABC2/ as outputs.
+
+### work/
+
+-   You will see `first/` and `TCGA-55-7903-01A-11D-2167-08/`.
+
+    -   Under each directory, you will see `000001/`, `000002/`, ..., each of which is a simulation replication.
+
+    -   Each simulation replication has the same content as would be performed in a single execution.
+
+-   `first/` has results before ABC.
+
+-   `TCGA-55-7903-01A-11D-2167-08/` has results after ABC, where parameter values selected by ABC are used.
+
+### ABC1/ and ABC2/
+
+-   ABC1/ and ABC2/ are the results of ABC before and after parameter selection, respectively.
+
+-   Under each directory, you will see `TCGA-55-7903-01A-11D-2167-08/`. Under this, you will see files.
+
+    -   Files of `evals.*.txt` are related to the evaluation (fit between observed and simulation VAFs).
+
+    -   The other files are related to ABC.
+
+    -   See the relevant sections for the details.
+
+-   Here, three types of files will be useful.
+
+    -   *evals.stats.{pre,post}.txt*
+
+        -   This records scores of the evaluation.
+
+    -   *TOLSel_rejection_tumor_content=\*\_tol=\*.txt*
+
+        -   This stores the IDs (directory names) of the simulation replications that are selected by ABC.
+
+    -   *ABC_dist_tumor_content=\*.txt*
+
+        -   This stores the ABC distance for each replication.
+
+## Selected parameter values
+
+-   In each simulation replication, generators generate random values. Then, simulations are made. The ABC process selects simulation replications with good fit to observed data and stores the directory names of the selected replications in `TOLSel_rejection_tumor_content=*_tol=*.txt`*.*
+
+    -   From this list, simulation replications are re-sampled into `work/TCGA-55-7903-01A-11D-2167-08/`. Then, without using generators this time, simulations are made.
+
+-   In other words, selected parameter values can be tracked to simulation replications in `work/first/` with the directory names listed in `ABC1/`'s `TOLSel_rejection_tumor_content=*_tol=*.txt`*.*
+
+    -   (`ABC2/`'s `TOLSel_rejection_tumor_content=*_tol=*.txt`\
+        corresponds to\
+        `work/TCGA-55-7903-01A-11D-2167-08/`)
+
+-   In our experience, several rounds of ABC were necessary to obtain good fit we satisfied with.

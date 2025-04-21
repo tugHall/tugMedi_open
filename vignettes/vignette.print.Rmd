@@ -1,0 +1,57 @@
+---
+title: "tugMedi 1.0.08"
+subtitle: "--`r params$ita_tu`mor-`r params$ita_g`enome `r params$ita_Medi`cal-- simulator"
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+output:
+  pdf_document: 
+    toc: true
+    number_sections: true
+  html_document: 
+    toc: true
+    number_sections: true
+params: 
+    ita_tu: "*tu*"
+    ita_g: "*g*"
+    ita_Medi: "*Medi*"
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+\newpage
+
+```{r, child = '01_Quick.single.Rmd'}
+```
+
+\newpage
+
+```{r, child = '02_Quick.parallel.Rmd'}
+```
+
+\newpage
+
+```{r, child = '03_Input.Rmd'}
+```
+
+```{r, child = '04_Output.Rmd'}
+```
+
+```{r, child = '05_Generators.Rmd'}
+```
+
+```{r, child = '06_ABC.Rmd'}
+```
+
+```{r, child = '07_Posts.Rmd'}
+```
+
+\newpage
+
+```{r, child = '08_PrepInput.Rmd'}
+```
+
+```{r, child = '09_Observed.Rmd'}
+```
+
+```{r, child = '10_Analyses.Rmd'}
+```

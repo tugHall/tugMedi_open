@@ -1,0 +1,342 @@
+---
+title: "Generators"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Generators
+
+Generators randomly generate parameter values used as input data for simulation.
+
+## Generation of CF.txt
+
+### Input
+
+#### CF.skeleton.txt
+
+-   The output file is generarated based on this skeleton.
+
+-   The same parameter values are used for the output file, unless it is instructed to change ones in CF.parameters.txt.
+
+#### CF.parameters.txt
+
+\
+
+***Parameters***
+
+-   skeleton: File path to the skeleton.
+
+-   out: File path to the output.
+
+**rtrunc() based generation**
+
+-   dist\$*hallmark_name*\$spec: spec of rtrunc() in the library of truncdist
+
+    -   beta is recommended.
+    -   If NULL, the non-informative beta distribution is used.
+
+-   dist\$*hallmark_name*\$a: Same as above for a
+
+-   dist\$*hallmark_name*\$b: Same as above for b
+
+-   dist\$*hallmark_name*\$*option:* Same as above for *option*
+
+    \* The italic text means a variable
+
+**sample() based generation**
+
+-   dist\$*hallmark_name*\$spec: sample
+
+-   dist\$*hallmark_name*\$x: x of sample()
+
+-   dist\$*hallmark_name*\$prob: prob of sample()
+
+    \* replace = T
+
+### Run
+
+`write_CF( input = './Input/ForGenerators/CF.parameters.txt' )`
+
+This command inputs CF.parameters.txt and outputs CF.txt.
+
+------------------------------------------------------------------------
+
+## Generation of hallmark_weights.txt
+
+### Input
+
+#### hallmark_weights.skeleton.txt
+
+-   The output file is generarated based on this skeleton.
+
+-   The same parameter values are used for the output file, unless it is instructed to change ones in hallmark_weights.parameters.txt.
+
+#### hallmark_weights.parameters.txt
+
+\
+
+***Parameters***
+
+-   skeleton: File path to the skeleton.
+
+-   out: File path to the output.
+
+**Dirichlet distribution based generation**
+
+-   dist\$*hallmark_name*\$spec: Either of 'dirichlet', 'dirichlet.mode', or 'dirichlet.mean'.
+
+    -   'dirichlet': rdirichlet() in the dirmult library is used to generate random numbers based on the alpha parameters.
+
+    -   'dirichlet.mode': The mode of the Dirichlet distribution is calculated from the alpha parameters, and is used deterministically.
+
+    -   'dirichlet.mean': Same as above for the mean.
+
+-   dist\$*hallmark_name*\$alpha.column: Indicate which column in the skeleton is used for the alpha parameters of the Dirichlet distribution
+
+    -   If NULL, the non-informative Dirichlet distribution is used.
+
+### Run
+
+`write_weights( input = './Input/ForGenerators/hallmark_weights.parameters.txt' )`
+
+This command inputs hallmark_weights.parameters.txt and outputs hallmark_weights.txt.
+
+------------------------------------------------------------------------
+
+## Generation of parameters.txt
+
+### Input
+
+#### parameters.skeleton.txt
+
+-   The output file is generarated based on this skeleton.
+
+-   The same parameter values are used for the output file, unless it is instructed to change ones in parameters.parameters.txt.
+
+#### parameters.parameters.txt
+
+\
+
+***Parameters***
+
+-   skeleton: File path to the skeleton.
+
+-   out: File path to the output.
+
+**rtrunc() based generation**
+
+-   dist\$*parameter_name*\$spec: spec of rtrunc() in the library of truncdist
+
+-   dist\$*parameter_name*\$a: Same as above for a
+
+-   dist\$*parameter_name*\$b: Same as above for b
+
+-   dist\$*parameter_name*\$*option:* Same as above for *option*
+
+**sample() based generation**
+
+-   dist\$*parameter_name*\$spec: sample
+
+-   dist\$*parameter_name*\$x: x of sample()
+
+-   dist\$*parameter_name*\$prob: prob of sample()
+
+    \* replace = T
+
+### Run
+
+`write_prm( input = './Input/ForGenerators/parameters.parameters.txt' )`
+
+This command inputs parameters.parameters.txt and outputs parameters.txt.
+
+------------------------------------------------------------------------
+
+## Generation of EF.Rint.txt
+
+*\* Now this only generates values in the 'Time_step' and 'Pchr' columns.*
+
+### Input
+
+#### EF.Rint.skeleton.txt
+
+-   The output file is generarated based on this skeleton.
+
+-   The same parameter values are used for the output file, unless it is instructed to change ones in EF.Rint.parameters.txt.
+
+#### EF.Rint.parameters.txt
+
+\
+
+***Parameters***
+
+-   skeleton: File path to the skeleton.
+
+-   out: File path to the output.
+
+**rtrunc() based generation**
+
+-   dist\$*column_name*\$spec: spec of rtrunc() in the library of truncdist
+
+    -   norm (or pois) is recommended for the Time_step column.
+
+    -   Without prior knowledge, unif may be used at first.
+
+-   dist\$*column_name*\$a: Same as above for a
+
+-   dist\$*column_name*\$b: Same as above for b
+
+-   dist\$*column_name*\$*option:* Same as above for *option*
+
+    -   Different values can be given by indicating mutation IDs in vector, such as c(M2=5, M3=20), where M2 and M3 are mutation IDs in the skeleton.
+
+**sample() based generation**
+
+-   dist\$*column_name*\$spec: sample
+
+-   dist\$*column_name*\$x: x of sample()
+
+-   dist\$*column_name*\$prob: prob of sample()
+
+    \* replace = T
+
+### Run
+
+`write_EF.Rint( input = './Input/ForGenerators/EF.Rint.parameters.txt' )`
+
+This command inputs EF.Rint.parameters.txt and outputs EF.Rint.txt.
+
+------------------------------------------------------------------------
+
+## Generation of EF.Rother.txt
+
+### Input
+
+#### EF.Rother.parameters.txt
+
+\
+
+***Parameters***
+
+-   input.prms: File path to parameters.txt, which is used as input data.
+
+-   input.Rother: File path to Rother.txt, which is used as input data.
+
+-   input.CCDSdatabase: File path to CCDS.current.my.txt, which is used as input data.
+
+-   out: File path to the output.
+
+-   CNA_presence: whether or not to generate CNAs (dels and dups)
+
+-   N_mut: Number of mutations to be generated
+
+**rtrunc() based generation**
+
+-   dist\$EEL\$spec: spec of rtrunc() in the library of truncdist
+
+    -   exp, gamma, and weibull are usable.
+
+        \* The scale parameter of gamma and weibull is scaled to keep the mean the same as exp's.
+
+-   dist\$EEL\$*option:* Same as above for *option*
+
+### Run
+
+`write_EF.Rother( input = './Input/ForGenerators/EF.Rother.parameters.txt' )`
+
+This command inputs EF.Rother.parameters.txt and outputs EF.Rother.txt.
+
+------------------------------------------------------------------------
+
+## Generation of cloneinit.txt
+
+### Input
+
+#### cloneinit.skeleton.txt
+
+-   The output file is generarated based on this skeleton.
+
+-   For the output file, passenger poms are added according to cloneinit.parameters.txt.
+
+#### cloneinit.parameters.txt
+
+\
+
+***Parameters***
+
+-   skeleton: File path to the skeleton.
+
+-   out: File path to the output.
+
+-   input.Rother: File path to Rother.txt, which is used as input data.
+
+-   input.CCDSdatabase: File path to CCDS.current.my.txt, which is used as input data.
+
+**sample() based generation**
+
+The number of poms to add to *cloneID* in the skeleton is randomly generated. Added poms are passenger poms in genes that are randomly selected from Rother in proportion to the gene sizes. The positions are also randomly determined.
+
+-   pom[[ '*cloneID*' ]]\$dist\$spec: sample
+
+-   pom[[ '*cloneID*' ]]\$dist\$x: x of sample(). x must be a vector of integers to indicate the number.
+
+-   pom[[ '*cloneID*' ]]\$dist\$prob: prob of sample()
+
+    \* replace = T
+
+### Run
+
+`write_cloneinit( input = './Input/ForGenerators/cloneinit.parameters.txt' )`
+
+This command inputs cloneinit.parameters.txt and outputs cloneinit.txt.
+
+------------------------------------------------------------------------
+
+## Generation of Rint.txt
+
+### Input
+
+#### Rint.skeleton.txt
+
+-   The output file is generarated based on this skeleton.
+
+-   The same parameter values are used for the output file, unless it is instructed to change ones in Rint.parameters.txt.
+
+#### Rint.parameters.txt
+
+\
+
+***Parameters***
+
+-   skeleton: File path to the skeleton.
+
+-   out: File path to the output.
+
+**sample() based generation**
+
+The value of the Type column for *gene* in the skeleton is randomly replaced.
+
+-   dist\$Type[[ '*gene*' ]]\$spec: sample
+
+-   dist\$Type[[ '*gene*' ]]\$x: x of sample(). x must be a vector of gene types such as 's', 'o', and 'dn'.
+
+-   dist\$Type[[ '*gene*' ]]\$prob: prob of sample()
+
+    \* replace = T
+
+### Run
+
+`write_Rint( input = './Input/ForGenerators/Rint.parameters.txt' )`
+
+This command inputs Rint.parameters.txt and outputs Rint.txt.

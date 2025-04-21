@@ -1,0 +1,176 @@
+---
+title: "Analyses"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+  
+)
+```
+
+# Analyses
+
+## 1) First, check the points below for a single simulation
+
+### See VAF.txt
+
+-   Simulated VAFs are close to observed ones?
+
+    *Note that differences of values by 5-10% often happen due to the observation errors of VAFs in NGS.*
+
+-   The number of VAFs are close to observed ones?
+
+-   Check if the range of tumor contents is set as you intend.
+
+### Check LOD of VAFs
+
+-   LOD is appropriately set? For example, 10% or 5%?
+
+    Then, do you have an enough number of observed VAFs?
+
+## 2) Checkpoints for simulation results after ABC
+
+### First
+
+-   See evals.stats files for pre and post ABC (evals.stats.{pre, post}.txt)
+
+    to check if the statistics for evaluation are improved after ABC.
+
+    -   Good parameter values may be already selected if no improvements are seen with good fits with observed data.
+
+### When you find something wrong
+
+-   Check stderr.txt in simulation replications.
+
+-   Go to the folder of an arbitrary simulation replication.
+
+    -   Check if the result is consistent with that from a single simulation without using ABC.
+
+    -   Check the presence of \_\_tmp.addPnt\_\_ and the consistency of chromosomes and the positions.
+
+-   See the log from post.eval.R on the screen to check if enough VAF.txt files are globbed.\
+
+-   Check if the number of simulations is large enough.
+
+-   Check if the tolerance rate of ABC is small enough.
+
+### Check how many simulation replications survived extinction
+
+-   At last time step, a simulation replication reached the number of cells you intended?
+    -   Can be checked with a LINUX command pipeline combined with `xargs (ls |xargs -i ...)` and `tail`
+        -   For `xargs`, you need to stand under the directory where `ls` shows replications such as named 000001/, 000002/, ...
+-   If it's under \~80% even after ABC, something may be wrong. For example, parameters related to cell divisions may not be appropriate for cells to proliferate.
+
+## 3) After getting through the checkpoints
+
+### Tumor contents
+
+-   You may need to determine on a tumor content for analyses.
+    -   Simply, you can use evaluation scores such as ME (mean error) to select which tumor content leads to a good-fit with observed data.
+    -   Also, you can use `postpr()`, which performs model selection of ABC. Refer to [[the section below]{.underline}](#model_cmp).
+
+### Posteriors and statistics
+
+-   Aggregate the values of parameters and of variables of interest. Then, see the distributions.
+
+    -   Values can be aggregated over replications with `xargs` (`ls |xargs -i ...`) and then go to histograms for the distributions.
+
+## 4) For ensemble plots
+
+*We provide scripts we internally use to perform the followings in scripts/analyses/analyses.\* for your reference.*
+
+### 1. Evaluate the data fit
+
+-   You need to confirm if simulated VAFs are close to observed VAFs on average.
+
+    -   You can use evals.stats.post.txt.
+
+### 2. Select good-fit replications
+
+-   For meaningful analyses, you may need to select replications well fitting with observed data
+
+    -   For example, based on distances obtained by ABC (shortest distances from observe data) for simulation results **AFTER** parameter tuning.
+
+    -   Replications badly fitting with observed data will be meaningless even after parameter tuning.
+
+### 3. Tune virtual drug intervention
+
+-   You may need to change the parameter values of virtual drug intervention. With parameter values changed, you can re-run the drug intervention part only, not simulating the entire time steps.
+
+    -   Can be re-run with `xargs` with '`Rscript --vanilla --slave`' and an R script with `start_simulation( first = F, ... )` having the changed parameters of drug intervention.
+        -   For `xargs`, you need to stand under the directory where `ls` shows replications such as named 000001/, 000002/, ...
+
+### 4. Adjust VDT when you use VDT
+
+-   You may need to adjust the time scaling of VDT when you use VDT for the real time conversion.
+
+    1.  Make the ensemble plot WITHOUT the time calibration, as described below.
+
+        -   Because it is hard to handle negative values.
+
+    2.  Find the range of a exponential growth of tumor.
+
+    3.  Reset VDT\${n1, n2, t1, t2} in realTime.parameters.txt.
+
+-   Run the conversion of simulation time into real time for each replication.
+
+    -   Can be run with `xargs` with '`Rscript --vanilla --slave`' and an R script with `write_realTime_clone()`.
+
+### 5. Real time for virtual drug intervention
+
+-   You may need to convert the simulation time unit into the real time for simulation replications after you tune virtual drug intervention.
+
+    -   Can be run with `xargs` with '`Rscript --vanilla --slave`' and an R script with `write_realTime_clone()`.
+
+### 6. Draw ensemble plots
+
+-   You can make the ensemble plots of 1) tumor growth from simulation replications of cloneout.txt, 2) the timings of pom insertions from those of EF.Rint.txt, and 3) TMB from those of TMB.txt.
+
+    -   An ensemble plot is a plot in which statistics such as the mean and percentiles over replications are plotted against time.
+
+    -   It is necessary to calibrate time so that the observed time is set to 0, and the past and future are measured with negative and positive values, respectively.
+
+        1.  Identify replications in which the number of cancer cells reached the number you specified in simulation settings.
+
+        2.  For those replications, subtract the last time of a simulation from every time so that time is calibrated as above.
+
+    -   For example, first utilize `xargs` (`ls |xargs -i ...`) to make a table of raw data across replications, and then go to R to get statistics and draw an ensemble plot.
+
+        -   To avoid multi-modal plots, it may be better to aggregate data for the same input or at least for the same order of magnitude in inputs, especially of dN and the compaction factor of growth.
+        -   For `xargs`, you need to stand under the directory where `ls` shows replications such as named 000001/, 000002/, ...
+
+    -   For example, the first command to make a table may be the following, though you may need to adjust this to your computer environments:\
+        `ls | xargs -i sh -c 'echo -n -e "{}\t"; tail -n 1 {}Output/cloneout.realTime.txt' |cut -f1,2,9|awk '$3 > 1e9' |xargs -n 3 sh -c 'awk -F"\t" "{print FILENAME, \$1-${1}, \$8, \$1, \$2, ${1}, ${2} }" ${0}Output/cloneout.realTime.txt ${0}Output/cloneout.realTime.drg.txt' |grep -v avg|sed 's/ /\t/g'|cut -f1-4|grep -v -P '\tN_primary' |sort |uniq |sort -k1,1 -k2,2n -k3,3nr |less`
+
+        -   Before the first `ls`, it is better to limit to good-fit replications, as described in "Select good-fit replications".
+
+-   You can make the ensemble plots of 1) VAFs from simulation replications of VAF.txt and 2) subpopulations from those of cloneout.txt.
+
+    -   To draw these is more difficult than the ensemble plots above, because of multiple entities such as multiple poms and subpopulations.
+
+    -   You may need to sort VAFs or N_cells at each time in the same replication and then rename ids with the ordered numbers. Statistics are calculated over the ids. For example, top 1s across replications at each time are used for the calculation of statistics.
+
+### 7. Draw ensemble plots of virtual drug intervention
+
+-   For a table for ensemble plots, you can **concatnate** an output file that has the results of virtual drug intervention **to** an output file without drug intervention in each simulation replication, as shown in the LINUX command above.
+
+    -   There, `awk` takes two files: `awk ... ${0}Output/cloneout.txt ${0}Output/cloneout.drg.txt'`
+
+    -   Thus, time with virtual drug intervention is measured with positive values.
+
+## 4) When you have different statistical models {#model_cmp}
+
+For example, when you start simulations with different initial states or when you try different tumor contents.
+
+***\* These can be also evaluated in the basic ABC procedures if different states are randomly generated from priors. But when you define different states manually, you can use the method below.***
+
+-   Proceed to `postpr()` in the vignette of library(abc).
