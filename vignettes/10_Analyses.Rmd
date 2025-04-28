@@ -86,7 +86,7 @@ knitr::opts_chunk$set(
 
 ## 4) For ensemble plots
 
-*We provide scripts we internally use to perform the followings in scripts/analyses/analyses.\* for your reference.*
+*We provide scripts we internally use to perform the followings in scripts/analyses/analyses.\* in the gitHub repository for your reference.*
 
 ### 1. Evaluate the data fit
 

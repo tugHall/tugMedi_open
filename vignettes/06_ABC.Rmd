@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 # Approximate Bayesian Computation (ABC)
 
-You can perform parallel execution and subsequent ABC. See scripts/ABC/abc.\* for the scripts and examples.
+You can perform parallel execution and subsequent ABC. See scripts/ABC/abc.\* in the gitHub repository for the scripts and examples.
 
 ## Scripts
 
