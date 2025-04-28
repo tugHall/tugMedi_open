@@ -1,0 +1,32 @@
+Parameter	Value
+compaction_factor	T
+kappa	1
+
+# F is not recently tested.
+tumbler_for_event_enforcement	T
+
+# metastatic_model: 'proportional_metastatic' (, under test: 'threshold_metastatic')
+metastatic_model	'proportional_metastatic'
+
+# growth: 'logistic', 'exponential'
+growth	'logistic'
+
+# spec: now only 'pois'
+trial	list()
+trial$spec	'pois'
+
+# spec: now only 'pois'
+meta.addNcells	list()
+meta.addNcells$spec	'pois'
+meta.addNcells$lambda	1
+
+# save CCDS info or do not (usually in the file used.gene_location.txt)
+save.CDS.info	F
+
+# under test
+meta.loc	list()
+meta.loc$sig	matrix( nrow=3, ncol=3 )
+meta.loc$sig[1,]	c(100, 0, 0) ^ 2
+meta.loc$sig[2,]	c(0, 100, 0) ^ 2
+meta.loc$sig[3,]	c(0, 0, 100) ^ 2
+

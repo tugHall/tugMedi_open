@@ -1,0 +1,8 @@
+Hallmark	Gene	Weight
+apoptosis	TP53	0.441263109
+apoptosis	BRAF	0.346524767
+growth	TP53	0.522233922
+growth	BRAF	0.006781531
+angiogenesis	TP53	0.377084741
+immortalization	TP53	0.834752031
+invasion	TP53	1
