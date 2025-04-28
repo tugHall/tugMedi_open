@@ -1,9 +1,0 @@
-#Parameter	Value
-input.cloneout	'./Output/cloneout.drg.txt'
-out	'./Output/cloneout.realTime.drg.txt'
-
-
-
-outUnit	'year'
-col.replace	T
-

@@ -1,4 +1,0 @@
-type	u.pom	u.del	u.dup	mode.pom	mode.del	mode.dup
-o	uo	uo_del	uo_dup	D	N	D
-s	us	us_del	us_dup	R	R	N
-dn	us	us_del	us_dup	D	R	N

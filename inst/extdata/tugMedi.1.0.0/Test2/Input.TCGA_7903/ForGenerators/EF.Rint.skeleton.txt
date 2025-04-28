@@ -1,2 +1,0 @@
-Time_step	Mutation	Condition	Type	Gene	Chr	Chr_stt	Chr_end	Pchr	DrvPss
-12	M2	NA	pom	BRAF	7	140753336	NA	1	drv

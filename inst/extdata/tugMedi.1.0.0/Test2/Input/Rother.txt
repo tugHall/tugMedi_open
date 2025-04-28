@@ -1,3 +1,0 @@
-Gene	CDS_ID
-_allGenes_chr1	CCDS_allGenes_chr1
-
