@@ -1,5 +1,0 @@
-Hallmark	CompactionFactor
-apoptosis	0.762463907478377
-growth	0.1
-immortalization	0.0627681297229673
-invasion	0.01
