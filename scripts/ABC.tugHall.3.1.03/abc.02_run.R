@@ -13,7 +13,7 @@ if (1) {
     } 
 } else {
     # User mode
-    library(tugHall.3)
+    library(tugMedi)
 }
 #####################################################
 #flog.threshold( 'DEBUG' )
