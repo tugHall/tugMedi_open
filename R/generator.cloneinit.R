@@ -52,16 +52,8 @@ generate_cloneinit <- function( skeleton = NULL, pom, rother_file, ccds_file ) {
    return( ret )
 }
 
-# 
-#' Generate data and write input file for initial clones
-#'
-#' @param input Input file of the parameters to generate initial clones
-#' @param force.stdout Logical parameter to print data (TRUE) or to save to the file (FALSE)
-#'
-#' @export
-#'
-#' @examples
-#' NULL 
+
+#
 write_cloneinit <- function( input, force.stdout = F ) {
 
    input.table   <- read.table( input, header=F, sep="\t", stringsAsFactors = FALSE )

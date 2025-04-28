@@ -133,7 +133,7 @@ get_point_mutation_for_gene <- function( onco1, gm_1_2, gene ){
 #' @param onco1 Object of class 'OncoGene'
 #' @param Chr Chromosome name
 #' @param mutation If mutation is NOT NA then MalfunctionedByPointMut = TRUE, else it is defined by corresponding probabilities
-#' @param rst.ratio rst
+#' @param rst.ratio Resist ratio against drug intervention
 #'
 #' @return Object of class 'Point_Mutations'
 #'

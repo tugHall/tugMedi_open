@@ -122,7 +122,7 @@ conduct_trials <- function( clone1, onco1, model_param, drug_int_param=NULL ) {
    # Drug intervention trial
    if ( ( ! is.null( drug_int_param ) ) && clone1$drug.on ){
       N_die = N_die + .get_rtrunc4trial( spec = model_param$trial$spec, max = clone1$N_cells,
-                                         prob = drug_int_param[[ 'kill_prob' ]] * ( 1 - clone1$rst ) )
+                                         prob = drug_int_param[[ 'kill_prob' ]] )
    }
 
    # Invasion / metastasis trial
@@ -455,7 +455,7 @@ check_driver  <-  function( clone1, gene ){
    pom_info$pnt0 <- generate_pnt( onco1, pom_info$prntl, pom_info$gene, 
                                   pom_info$pos, pom_info$Chr,
                                   malfunc = MalfunctionedByPointMut, 
-                                  rst.ratio = mut_row1$Ratio )
+                                  rst.ratio = mut_row1$rst.ratio )
 
    return( pom_info )
 }

@@ -1,32 +1,28 @@
 
 #' Copy the test data of this package under the current directory. 
 #'
-#' @param subdir Directory where the test data are stored. By default, './'
+#' @param subdir Directory where the test data are stored. By default, 'extdata'
 #'
 #' @export
 #'
 #' @examples
 #' copy_test_data()
-copy_test_data <- function( subdir = './' ){
+copy_test_data <- function( subdir = 'extdata' ){
 
-   path.dir  <- system.file( paste0( 'extdata/', subdir), package = 'tugMedi', mustWork = T )
+   path.dir  <- system.file( subdir, package = 'tugHall.3', mustWork = T )
    path.glob <- paste0( path.dir, '/*' )
    dirs      <- Sys.glob( path.glob )
    
-   if ( !file.exists( subdir ) ){
-       dir.create( subdir )
-   }
-   
    for ( dir in dirs ) {
-      file.copy( dir, subdir, recursive = T, overwrite = F )
+      file.copy( dir, '.', recursive = T, overwrite = F )
    }
 
 }
 
 
-#' Environment of the package 'tugMedi' to store all the objects of a simulation
+#' Environment of the package 'tugHall.3' to store all the objects of a simulation
 #'
-#' @description \code{pck.env } is environment of the package 'tugMedi'
+#' @description \code{pck.env } is environment of the package 'tugHall.3'
 #' where all the objects of a simulation are stored and used
 #'
 #' @export

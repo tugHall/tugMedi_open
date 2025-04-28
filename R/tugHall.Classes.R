@@ -47,7 +47,6 @@ clone <- setRefClass(
         EF.mut_IDs = 'character',
         location.prmy = 'data.frame', # spatial info when primary    tumor
         location.meta = 'data.frame', # spatial info when metastatic tumor
-        rst           = "numeric"   , # rst
         
         tmp = 'data.frame' # for anything temporal, should be overriden for re-use
     ),
@@ -67,7 +66,7 @@ clone <- setRefClass(
                               gene=NULL, pasgene=NULL,
                               PointMut_ID = 0, CNA_ID = 0,
 
-                              drug.on=FALSE, drug.blocked.on=FALSE, drug.blocked.child=-Inf, rst=0,
+                              drug.on=FALSE, drug.blocked.on=FALSE, drug.blocked.child=-Inf,
                               EF.mut_IDs = '',
                               location.prmy = data.frame(x= 0, y= 0, z= 0, N_cells=NA),
                               location.meta = data.frame(x=NA, y=NA, z=NA, N_cells=NA) ) {
@@ -118,7 +117,6 @@ clone <- setRefClass(
             drug.on            <<- drug.on
             drug.blocked.on    <<- drug.blocked.on
             drug.blocked.child <<- drug.blocked.child
-            rst                <<- rst
             EF.mut_IDs <<- EF.mut_IDs
             location.prmy <<- location.prmy
             location.meta <<- location.meta
@@ -478,7 +476,7 @@ hallmark <- setRefClass(
         },
 
         # Change the cell variables
-        updateClone = function( clone1, onco1, Rother_genes, pnt_clones, tumblers, cna_clones ) {
+        updateClone = function( clone1, onco1, Rother_genes, pnt_clones, tumblers ) {
             
             # Apoptosis
             if ( tumblers$apoptosis ){
@@ -539,21 +537,6 @@ hallmark <- setRefClass(
             if ( ! is.nan( clone1$im ) ) {
                 clone1$im = clone1$Him
             }
-            
-            # rst
-            rst_p = rst_c = 0
-            if ( (clone1$PointMut_ID != 0)[ 1 ] ){
-                rst_p = sapply( X = clone1$PointMut_ID, FUN = function( x ){ pnt_clones[[ x ]]$rst.ratio } )
-            }
-            if ( (clone1$CNA_ID != 0)[ 1 ] ){
-                rst_c = sapply( X = clone1$CNA_ID,      FUN = function( x ){ cna_clones[[ x ]]$rst.ratio } )
-            }
-            rst = sum( rst_p ) + sum( rst_c )
-            if ( rst > 1 ){
-                clone1$rst = 1
-            } else {
-                clone1$rst = rst
-            }
 
         },
         # Change the environment variables
@@ -576,8 +559,7 @@ update_Hallmarks <- function( clone1, onco1 ) {
     pck.env$hall$updateClone( clone1 = clone1, onco1 = onco1, 
                               Rother_genes = pck.env$Rother_genes,
                               pnt_clones   = pck.env$pnt_clones, 
-                              tumblers = tumblers,
-                              cna_clones = pck.env$cna_clones
+                              tumblers = tumblers 
                               )
 }
 
@@ -605,7 +587,7 @@ Point_Mutations <- setRefClass(
         MalfunctionedByPointMut = "logical",   # True or False
         mut_order      = "numeric",     # order of mutation to reproduce the gene_map data.frame
         Ovlp_CNA_ID    = "numeric",     # CNA_IDs which overlapped the pnt and changed Copy_number
-        rst.ratio      = "numeric"      # rst
+        rst.ratio      = "numeric"      # Resist ratio against drug intervention
     ),
 
     #
@@ -668,7 +650,7 @@ CNA_Mutations <- setRefClass(
         Gene_names	    = "character",     # Genes' name
         MalfunctionedByCNA  = "logical",   # True of False
         mut_order       = "numeric",       # Order of point mutations and CNAs
-        rst.ratio       = "numeric"        # rst
+        rst.ratio       = "numeric"        # Resist ratio against drug intervention
     ),
 
     methods = list(

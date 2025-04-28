@@ -17,7 +17,7 @@ load_lib_functions4generators <- function( ){
 load_lib_functions4generators()
 
 
-#
+# 
 #
 .get_random_number <- function( opt, mut = NULL ) {
 
@@ -60,8 +60,6 @@ load_lib_functions4generators()
 
 
    if ( opt$spec == 'exp' ) {
-      if ( ! is.null( mut ) ) { opt$rate <- opt$rate[ mut ] }
-   
       rnum <- rtrunc( 1, spec = opt$spec, a = opt$a, b = opt$b,
                          rate = opt$rate )
    }
@@ -82,33 +80,6 @@ load_lib_functions4generators()
 
 
    return( rnum )
-}
-
-
-#
-.read_prms4gnrt <- function( input ) {
-
-   input.table <- read.table( input, header=F, sep="\t", stringsAsFactors = FALSE )
-
-   prms <- list()
-   for( ii in 1:nrow( input.table ) ) {
-      V1 <- input.table[ ii, 1 ]
-      V2 <- input.table[ ii, 2 ]
-
-      # add quotes
-      if ( length( grep( "^input\\.", V1, perl=T ) ) > 0 ||
-           V1 == 'out'                                   ||
-           length( grep( "\\$spec$",  V1, perl=T ) ) > 0 ||
-           V1 == 'Parameter'                            ||
-           V1 == 'metastatic_model'
-          ) V2 <- paste("\'", V2, "\'", sep='')
-
-      text <- paste0( V1, ' <- ', V2 )
-      text <- paste0( 'prms$', text )
-      eval( parse( text = text ) )
-   }
-
-   return( prms )
 }
 
 
