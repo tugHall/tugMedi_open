@@ -112,7 +112,7 @@ print("start")
 
 library(stringr)
 
-files <- c("../../tugHall.3/R/utils.R")
+files <- c("../../tugMedi/R/utils.R")
 for (file in files) {
    message("For development loading: ", file)
    source(file)

@@ -186,13 +186,13 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
            onco_clones <- c( onco_clones, newBSc_o$oncos )
         } else {
            # mutation insertion by EF
-           newRIc_o    <- .make_EF_clones_oncos( N_divisions, pck.env$env$T, EF.Rint.data,
+           newRIc_o    <- .make_EF_clones_oncos( N_divisions, pck.env$env$T, ttl_divs, EF.Rint.data,
                                                  clones = clones, oncos = onco_clones )
            clones      <- c( clones,      newRIc_o$clones )
            onco_clones <- c( onco_clones, newRIc_o$oncos )
 
            # by "EEL"
-           newROc_o    <- .make_EF_clones_oncos( N_divisions, ttl_divs,      EF.Rother.data,
+           newROc_o    <- .make_EF_clones_oncos( N_divisions, NULL,          ttl_divs, EF.Rother.data,
                                                  clones = clones, oncos = onco_clones )
            clones      <- c( clones,      newROc_o$clones )
            onco_clones <- c( onco_clones, newROc_o$oncos )
@@ -329,6 +329,7 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
 
       for ( ii in 1:N_new_clones )  {
          new_clone1   <- clone_copy( clone1 )
+         new_clone1$N_cells <- 1
          new_onco1    <- onco_copy( onco1 )
          new_onco1$id <- new_clone1$id
 
@@ -406,15 +407,16 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
 
 }
 
+
 #
-.make_EF_clones_oncos <- function( Ndivs, base_counter, EF.data, clones, oncos ) {
+.make_EF_clones_oncos <- function( Ndivs, crnt_time, ttl_divs, EF.data, clones, oncos ) {
    if ( is.null( EF.data ) ) return( NULL )
    switch <- .get_switch( EF.data )
 
    if        ( switch == 'EF' ) {
-      row4slctd_clone_idx <- .get_row4slctd_clone_idx.EF(         base_counter, EF.data, clones )
+      row4slctd_clone_idx <- .get_row4slctd_clone_idx( Ndivs, crnt_time, ttl_divs, EF.data, clones )
    } else if ( switch == 'EEL' ) {
-      row4slctd_clone_idx <- .get_row4slctd_clone_idx.EEL( Ndivs, base_counter, EF.data, clones )
+      row4slctd_clone_idx <- .get_row4slctd_clone_idx( Ndivs, NULL,      ttl_divs, EF.data, clones )
    }
    if ( is.null( row4slctd_clone_idx ) || length( row4slctd_clone_idx ) == 0 ) return( NULL )
 
@@ -446,9 +448,10 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
       mut_info <- .make_EF_mut_info( row4slctd_clone_idx[[ as.character(X) ]] )
 
       for ( n_mut in n_mut4new_clone_idx[[ as.character(X) ]] ) {
-         clone1   <- clone_copy( clones[[ as.numeric(X) ]] )
-         onco1    <- onco_copy( oncos[[ as.numeric(X) ]] )
-         onco1$id <- clone1$id
+         clone1         <- clone_copy( clones[[ as.numeric(X) ]] )
+         clone1$N_cells <- 1
+         onco1          <- onco_copy( oncos[[ as.numeric(X) ]] )
+         onco1$id       <- clone1$id
 
          if        ( switch == 'EF' && clone1$EF.mut_IDs[1] == '' ) {
            clone1$EF.mut_IDs <-                       mut_info[ 1:n_mut, 'Mutation' ]
@@ -486,29 +489,38 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
 
 
 #
-.get_row4slctd_clone_idx.EF <- function( base_counter, EF.data, clones ) {
+.get_row4slctd_clone_idx <- function( Ndivs, crnt_time, ttl_divs, EF.data, clones ) {
 
-   slctd_row <- EF.data[ EF.data$When == base_counter, ]
+   if ( ! is.null( crnt_time ) ) { 
+   # 'EF'
+      row4slctd_cln_idx.time <- .get_row4slctd_clone_idx.time(      crnt_time, EF.data, clones )
+      row4slctd_cln_idx.div  <- .get_row4slctd_clone_idx.div( Ndivs, ttl_divs, EF.data, clones )
+      
+      row4slctd_clone_idx <- c( row4slctd_cln_idx.time, 
+                                row4slctd_cln_idx.div  )
+   } else {
+   # 'EEL'
+      row4slctd_clone_idx    <- .get_row4slctd_clone_idx.div( Ndivs, ttl_divs, EF.data, clones )
+   }
+   
+   if ( length( row4slctd_clone_idx ) == 0 ) return( NULL )
+   return( row4slctd_clone_idx )
+}
+
+
+##
+.get_row4slctd_clone_idx.time <- function( crnt_time, EF.data, clones ) {
+
+   slctd_row <- EF.data[ EF.data$TimeDiv == 'time' & EF.data$When == crnt_time, ]
    if ( nrow( slctd_row ) == 0 ) return( NULL )
 
    row4slctd_clone_idx <- list()
    for ( ii in 1:nrow(slctd_row) ) {
       row1 <- slctd_row[ ii, ]
-
-      if ( row1$Condition == 'NA' || is.na( row1$Condition ) ) {
-         slct <- seq_along( clones )
-      } else {
-         con.muts <- unlist( strsplit( row1[ , 'Condition' ], '[, ]+', perl=T ) )
-         slct <- sapply( X=seq_along(clones), function(X) { all( con.muts %in% clones[[ X ]]$EF.mut_IDs ) } )
-         slct <- which( slct == T )
-
-         if ( length( slct ) == 0 ) {
-             stop( paste('ERROR: for', row1[,'Mutation'],
-                   ' no clones have mutations', con.muts, 'at time', base_counter, 'here.', sep=' ') )
-         }
-      }
-
-      #If the value of all prob is 0, an error occurs in the sample function, so the next line is executed
+      
+      slct <- .get_conditioned_cln_idx( row1, clones )
+      
+      #If the value of all prob is 0, an error occurs in the sample function
       prob = sapply( X=slct, function( X ) { clones[[ X ]]$N_cells * clones[[ X ]]$d } )
       if ( all(prob == 0) ) next
 
@@ -517,51 +529,119 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
                        prob = sapply( X=slct, function( X )
                           { clones[[ X ]]$N_cells * clones[[ X ]]$d } ) )
 
-      # hash
+      # storing with hash
              row4slctd_clone_idx[[ as.character(slct1) ]] <-
       rbind( row4slctd_clone_idx[[ as.character(slct1) ]], row1 )
    }
 
-   # If the length of row4slctd_clone_idx is 0, return NULL 
-   if ( length(row4slctd_clone_idx) == 0 ) {
-      return( NULL )
-   } 
    return( row4slctd_clone_idx )
 }
 
 
 #
-.get_row4slctd_clone_idx.EEL <- function( Ndivs, base_counter, EF.data, clones ) {
+.get_row4slctd_clone_idx.div <- function( Ndivs, ttl_divs, EF.data, clones ) {
 
-   slctd_row <- EF.data[ base_counter < EF.data$Waiting_division &
-                         EF.data$Waiting_division <= base_counter + sum( Ndivs ), ]
+   if ( ! is.null( EF.data$TimeDiv ) ) {
+      slctd_row <- EF.data[ EF.data$TimeDiv == 'div' & 
+                               ttl_divs < EF.data$When &
+                                          EF.data$When <= ttl_divs + sum( Ndivs ), ]
+   } else {
+      slctd_row <- EF.data[ ttl_divs < EF.data$Waiting_division &
+                                       EF.data$Waiting_division <= ttl_divs + sum( Ndivs ), ]
+   }
    if ( nrow( slctd_row ) == 0 ) return( NULL )
 
-   u_wd  <- unique( slctd_row$Waiting_division )
-   idx <- which( sapply( X=seq_along( clones ), function(X) {
-                    ifelse( is.na( Ndivs[ as.character(clones[[ X ]]$id) ] ) ||
-                                   Ndivs[ as.character(clones[[ X ]]$id) ] == 0, F, T ) } ) )
+   row4slctd_clone_idx <- .uniq_restore4slctd_cidx( slctd_row, Ndivs, clones )
 
-   if ( sum( Ndivs ) < 1e3 ) { # rep = F for small number
-      idx_rep <- sapply( X=idx, function(X) { rep( X, times=Ndivs[ as.character(clones[[ X ]]$id) ] ) } )
-      slctd_clone_idx <- sample( unlist( idx_rep ), length( u_wd ), rep=F )
+   return( row4slctd_clone_idx )
+
+}
+
+
+#
+.get_conditioned_cln_idx <- function( row1, clones ) {
+
+   if ( row1$Condition == 'NA' || is.na( row1$Condition ) ) {
+      slct <- seq_along( clones )
    } else {
-      slctd_clone_idx <- sample( idx,               length( u_wd ), rep=T,
-                                 prob = sapply( X=idx, function(X)
-                                    Ndivs[ as.character(clones[[ X ]]$id) ] ) )
+      con.muts <- unlist( strsplit( row1[ , 'Condition' ], '[, ]+', perl=T ) )
+      slct <- sapply( X=seq_along(clones), function(X) { all( con.muts %in% clones[[ X ]]$EF.mut_IDs ) } )
+      slct <- which( slct == T )
+      
+      if ( length( slct ) == 0 ) {
+         stop( paste0( 'For ', row1$Mutation, 
+                       ', no clones have mutations ', con.muts, 
+                       ' at ', row1$TimeDiv, ' ', row1$When, '.' ) )
+      }
    }
 
+   return( slct )
+}
+
+
+#
+.uniq_restore4slctd_cidx <- function( slctd_row, Ndivs, clones ) {
+   if ( ! is.null( slctd_row$When ) ) slctd_row$Waiting_division <- slctd_row$When
+  
+   # uniq
    row4slctd_clone_idx <- list()
+   u_wd  <- unique( slctd_row$Waiting_division )
    for ( ii in seq_along( u_wd ) ) {
       df <- slctd_row[ slctd_row$Waiting_division == u_wd[ ii ], ]
-      slct1 <- slctd_clone_idx[ ii ]
 
-      # hash
+      idx <- .get_cln_idx_tosample( df, Ndivs, clones )
+
+
+      if        ( length(idx) == 0 | is.null(idx) ) { 
+         return( NULL )
+      } else if ( length(idx) == 1 ) {
+         slct1 <- idx
+      } else {
+         slct1 <- sample( idx, 1, rep=T,
+                          prob = sapply( X=idx, function(X)
+                                         Ndivs[ as.character(clones[[ X ]]$id) ] ) )
+      }
+      Ndivs[ as.character(clones[[ slct1 ]]$id) ] <- Ndivs[ as.character(clones[[ slct1 ]]$id) ] - 1
+      
+      if ( ! is.null( slctd_row$When ) ) {
+         df$When             <- df$Waiting_division
+         df$Waiting_division <- NULL
+      }
+      # storing with hash
              row4slctd_clone_idx[[ as.character(slct1) ]] <-
       rbind( row4slctd_clone_idx[[ as.character(slct1) ]], df )
    }
 
    return( row4slctd_clone_idx )
+}
+
+
+#
+.get_cln_idx_tosample <- function( df, Ndivs, clones ) {
+
+   idx <- which( sapply( X=seq_along( clones ), function(X) {
+                    ifelse( is.na( Ndivs[ as.character(clones[[ X ]]$id) ] ) ||
+                                   Ndivs[ as.character(clones[[ X ]]$id) ] == 0, 
+                            F, T ) } ) )
+   
+   if ( ! is.null( df$When ) ) {
+      if ( nrow( unique( df[,c('When', 'Condition')] ) ) != 1 ) {
+         stop( 'Values in Condition are not identical under same value in When!' )
+      }
+      row1 <- df[ 1, ]
+
+      cnd_idx <- .get_conditioned_cln_idx( row1, clones )
+      idx <- intersect( idx, cnd_idx )
+      
+      if ( length( idx ) == 0 ) {
+         stop( paste0( 'For ', row1$Mutation, 
+                       ', no intersection between clone idxes with Ndiv and\n',
+                       '  those with ', row1$Condition, 
+                       ' at ', row1$TimeDiv, ' ', row1$When, '.' ) )
+      }
+   }
+
+   return( idx )
 }
 
 
