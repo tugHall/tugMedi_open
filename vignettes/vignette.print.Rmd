@@ -1,5 +1,5 @@
 ---
-title: "tugMedi 1.0.08"
+title: "tugMedi 1.0.31"
 subtitle: "--`r params$ita_tu`mor-`r params$ita_g`enome `r params$ita_Medi`cal-- simulator"
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
 output:
@@ -54,4 +54,7 @@ vignette: >
 ```
 
 ```{r, child = '10_Analyses.Rmd'}
+```
+
+```{r, child = '11_Sequence_of_simulations.Rmd'}
 ```

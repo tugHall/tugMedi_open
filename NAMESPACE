@@ -3,6 +3,7 @@
 export(copy_test_data)
 export(pck.env)
 export(start_simulation)
+export(update_RDS_from_output)
 export(write_CF)
 export(write_EF.Rint)
 export(write_EF.Rother)

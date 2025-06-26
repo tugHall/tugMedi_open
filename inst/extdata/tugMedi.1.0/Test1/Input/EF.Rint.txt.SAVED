@@ -1,3 +1,0 @@
-Time_step	Mutation	Condition	Type	Gene	Chr	Chr_stt	Chr_end	Pchr	DrvPss
-7	M2	NA	pom	KRAS	12	25209800	NA	1	drv
-21	M3	M2	pom	TP53	17	7676590	NA	1	drv

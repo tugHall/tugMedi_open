@@ -26,9 +26,9 @@ Generators randomly generate parameter values used as input data for simulation.
 
 #### CF.skeleton.txt
 
--   The output file is generarated based on this skeleton.
+-   The output file is generated based on this skeleton.
 
--   The same parameter values are used for the output file, unless it is instructed to change ones in CF.parameters.txt.
+-   Parameter values in this skeleton are overwritten with random values generated in the way specified in CF.parameters.txt.
 
 #### CF.parameters.txt
 
@@ -42,9 +42,9 @@ Generators randomly generate parameter values used as input data for simulation.
 
 **rtrunc() based generation**
 
--   dist\$*hallmark_name*\$spec: spec of rtrunc() in the library of truncdist
+-   dist\$*hallmark_name*\$spec: spec of rtrunc() in the truncdist library of R.
 
-    -   beta is recommended.
+    -   For example, beta can be used.
     -   If NULL, the non-informative beta distribution is used.
 
 -   dist\$*hallmark_name*\$a: Same as above for a
@@ -81,7 +81,7 @@ This command inputs CF.parameters.txt and outputs CF.txt.
 
 -   The output file is generarated based on this skeleton.
 
--   The same parameter values are used for the output file, unless it is instructed to change ones in hallmark_weights.parameters.txt.
+-   Parameter values in this skeleton are overwritten with random values generated in the way specified in hallmark_weights.parameters.txt.
 
 #### hallmark_weights.parameters.txt
 
@@ -97,7 +97,7 @@ This command inputs CF.parameters.txt and outputs CF.txt.
 
 -   dist\$*hallmark_name*\$spec: Either of 'dirichlet', 'dirichlet.mode', or 'dirichlet.mean'.
 
-    -   'dirichlet': rdirichlet() in the dirmult library is used to generate random numbers based on the alpha parameters.
+    -   'dirichlet': rdirichlet() in the dirmult library of R is used to generate random numbers based on the alpha parameters.
 
     -   'dirichlet.mode': The mode of the Dirichlet distribution is calculated from the alpha parameters, and is used deterministically.
 
@@ -123,7 +123,7 @@ This command inputs hallmark_weights.parameters.txt and outputs hallmark_weights
 
 -   The output file is generarated based on this skeleton.
 
--   The same parameter values are used for the output file, unless it is instructed to change ones in parameters.parameters.txt.
+-   Parameter values in this skeleton are overwritten with random values generated in the way specified in parameters.parameters.txt.
 
 #### parameters.parameters.txt
 
@@ -137,7 +137,7 @@ This command inputs hallmark_weights.parameters.txt and outputs hallmark_weights
 
 **rtrunc() based generation**
 
--   dist\$*parameter_name*\$spec: spec of rtrunc() in the library of truncdist
+-   dist\$*parameter_name*\$spec: spec of rtrunc() in the truncdist library of R.
 
 -   dist\$*parameter_name*\$a: Same as above for a
 
@@ -173,7 +173,7 @@ This command inputs parameters.parameters.txt and outputs parameters.txt.
 
 -   The output file is generarated based on this skeleton.
 
--   The same parameter values are used for the output file, unless it is instructed to change ones in EF.Rint.parameters.txt.
+-   Parameter values in this skeleton are overwritten with random values generated in the way specified in EF.Rint.parameters.txt.
 
 #### EF.Rint.parameters.txt
 
@@ -187,11 +187,11 @@ This command inputs parameters.parameters.txt and outputs parameters.txt.
 
 **rtrunc() based generation**
 
--   dist\$*column_name*\$spec: spec of rtrunc() in the library of truncdist
+-   dist\$*column_name*\$spec: spec of rtrunc() in the truncdist library of R.
 
-    -   norm (or pois) is recommended for the Time_step column.
+    -   Without prior knowledge, unif may be used for the Time_step column.
 
-    -   Without prior knowledge, unif may be used at first.
+    -   Then, norm may be used.
 
 -   dist\$*column_name*\$a: Same as above for a
 
@@ -243,7 +243,7 @@ This command inputs EF.Rint.parameters.txt and outputs EF.Rint.txt.
 
 **rtrunc() based generation**
 
--   dist\$EEL\$spec: spec of rtrunc() in the library of truncdist
+-   dist\$EEL\$spec: spec of rtrunc() in the truncdist library of R.
 
     -   exp, gamma, and weibull are usable.
 
@@ -311,7 +311,7 @@ This command inputs cloneinit.parameters.txt and outputs cloneinit.txt.
 
 -   The output file is generarated based on this skeleton.
 
--   The same parameter values are used for the output file, unless it is instructed to change ones in Rint.parameters.txt.
+-   Parameter values in this skeleton are overwritten with random values generated in the way specified in Rint.parameters.txt.
 
 #### Rint.parameters.txt
 

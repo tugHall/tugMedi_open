@@ -1,0 +1,36 @@
+
+
+
+### realTime, BEF drug int, aft adjust VDT ====================================================================
+### Move under directory you set. There you see replications 0001/, 0002/, ...
+
+
+ls |xargs -i -P 50 echo sh -c 'cp -f ../../Input/ForPosts/realTime.parameters.txt {}Input/ForPosts/ ' 
+
+
+ls |xargs -i -P 50 echo sh -c 'cd {}; Rscript --vanilla --slave ../../../../test2.99a_realTime.R 1>/dev/null 2>|stderr.realTime.txt ; cd ../' 
+
+
+### realTime, AFT drug int ====================================================================================
+### Move under drg int directory you set. There you see replications 0001/, 0002/, ...
+
+
+### Change: TCGA-55-7903-01A-11D-2167-08
+### Replace less with the following to execute: 
+### parallel --eta 
+ls -d ../TCGA-55-7903-01A-11D-2167-08/* | awk -F'/' '{print $2, $3}'| xargs -n 2 sh -c 'echo "cd $1; cd Output; ln -s ../../../$0/$1/Output/cloneout.txt ./; ln -s ../../../$0/$1/Output/cloneout.realTime.txt ./; cd ..; cd .. "' | less 
+
+
+ls |xargs -i -P 50 echo sh -c 'cd {}; Rscript --vanilla --slave ../../../../test2.99b_realTime.drg.R 1>/dev/null 2>|stderr.realTime.txt ; cd ../' 
+
+
+### ln -s TMB/VAF after drug int ===============================================================================
+
+
+### Change: TCGA-55-7903-01A-11D-2167-08
+### Replace less with the following to execute: 
+### parallel --eta 
+ls -d ../TCGA-55-7903-01A-11D-2167-08/* | awk -F'/' '{print $2, $3}'| xargs -n 2 sh -c 'echo "cd $1; cd Output/Info; ln -s ../../../../$0/$1/Output/Info/TMB.txt ./; cd ../VAF; ln -s ../../../../$0/$1/Output/VAF/VAF.txt ./; ln -s ../../../../$0/$1/Output/VAF/ForVAF.txt ./; cd ../../../ "' | less 
+
+
+

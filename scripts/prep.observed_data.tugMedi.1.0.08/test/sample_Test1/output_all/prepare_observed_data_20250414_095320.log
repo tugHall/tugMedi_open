@@ -1,0 +1,12 @@
+Start date and time: 2025-04-14 09:53:20
+Sample file path: ../../inst/extdata/tugMedi.1.0/Test1/Input/Samples/Processes/samples.02.txt
+Config file path: ./test/sample_Test1/config/config.conf
+Command content: python prepare_observed_data.py -i ../../inst/extdata/tugMedi.1.0/Test1/Input/Samples/Processes/samples.02.txt -c ./test/sample_Test1/config/config.conf -m all -o ./test/sample_Test1/output_all
+get-tumor-specific mode start
+get-tumor-specific mode passed
+get-vaf mode start
+get-vaf mode passed
+get-driver-genes mode start
+get-driver-genes mode passed
+get-passenger-genes mode start
+get-passenger-genes mode passed

@@ -19,17 +19,19 @@ knitr::opts_chunk$set(
 
 # Preparing observed data
 
-Observed data are not required by the simulation itselt, but they are necessary for ABC and evaluations and useful for setting simulation inputs.
+Observed data are not required by simulation itselt, but they are necessary for ABC and evaluation, and useful for setting simulation inputs.
 
 ## See observed SNV/indel data you have
 
-For ABC and evaluations, it is necessary to format observed data into samples.{Rint, Rother}.txt, which only have to have the columns of gene name, sample name, and VAFs.
+For ABC and evaluation, it is necessary to format observed data into samples.{Rint, Rother}.txt, which only have to have the columns of gene name, sample name, and VAFs.
 
 -   *You can change the names of samples.{Rint, Rother}.txt, but here we use these names for convenience.*
 
+You can format them as follows.
+
 ### 0) Confirm if observed SNVs/indels are tumor-specific.
 
--   To see cancer cells evolving from normal cells, SNVs/indels must be tumor-specific, that is, the differences of cancer cells from normal cells.
+-   To see cancer cells evolving from normal cells, SNVs/indels must be tumor-specific (must be somatic, not including germline mutations).
 
 ### 1) Add the VAF column
 
@@ -41,9 +43,9 @@ For ABC and evaluations, it is necessary to format observed data into samples.{R
 
 -   Keep the columns of gene name and sample name.
 
--   The column numbers of the three columns need to be later specified.
+    -   The column numbers of the three columns (gene name, sample name, VAF) will be required later.
 
-    -   Hence, the order does not matter.
+    -   The column order does not matter.
 
 -   Keep other columns useful for interpretation. These columns are not necessary to run the program, but will be informative later.
 
@@ -61,7 +63,7 @@ For ABC and evaluations, it is necessary to format observed data into samples.{R
 
     -   It is likely that genes with low VAFs close to LOD have little influence, if any.
 
-    -   You can later evaluate how much your hypothesis is likely through the model comparison technique of ABC.
+    -   You can later evaluate how much your hypothesis is likely by the model comparison technique of ABC.
 
         *\* If there are multiple SNVs/indels for a possible driver gene, you may select one with the highest VAF. The others can be threw away or kept as passengers.*
 
@@ -69,15 +71,17 @@ For ABC and evaluations, it is necessary to format observed data into samples.{R
 
 -   From the file of subsection 3), select rows with possible passenger genes you think in the column of gene name.
 
-    -   You can sort chromosome numbers and then keep rows until you think the number of passengers is enough (e.g., around 10 at the first trial).
+    -   You can sort chromosome numbers and then keep rows until you think the number of passengers is enough (e.g., around 10 to 20 at the first trial).
 
--   You many need to change the gene names to artificial gene names to match with artificial gene names in Input/Rother.txt.
+-   You may need to change the gene names to artificial gene names to match with artificial gene names in Input/Rother.txt.
 
 ## See observed CNA data if you have
 
-Observed CNA data can be useful for setting simulation inputs.
+Observed CNA data can be useful for setting simulation input values.
 
 *\* If you do not have, you may apply data of the same cancer type you have already had to the estimates below as priors.*
+
+You can set them as follows.
 
 ### 1) Estimation of m_del and m_dup
 
@@ -111,4 +115,4 @@ Observed CNA data can be useful for setting simulation inputs.
 
 ### 3) Check the presence of dels and dups in genes you specified as regions of interest.
 
--   You can get information useful for setting dels and dups in EF.Rint.txt and cloneinit.txt.
+-   Then, you may get information useful for setting dels and dups in EF.Rint.txt and cloneinit.txt.

@@ -20,7 +20,9 @@ knitr::opts_chunk$set(
 
 ## Run
 
-For parallel computing, let us assume that GNU parallel is available (for `qsub`, see the section of Approximate Bayesian Computation (ABC)). After `copy_test_data()`explained at the previous chapter, move into the test directory of tugMedi.1.0/Test2/ on your OS.
+For parallel computing, let us assume that GNU parallel is available (for `qsub`, see the chapter of Approximate Bayesian Computation).
+
+After `copy_test_data()` explained at the previous chapter, move into the test directory of Test2/ on your OS. Then,
 
 1.  Change the newline code of the files according to your OS.
 
@@ -150,7 +152,7 @@ You will see work/, and ABC1/ and ABC2/ as outputs.
 
     -   The other files are related to ABC.
 
-    -   See the relevant sections for the details.
+    -   See relevant sections for the details.
 
 -   Here, three types of files will be useful.
 
@@ -168,14 +170,14 @@ You will see work/, and ABC1/ and ABC2/ as outputs.
 
 ## Selected parameter values
 
--   In each simulation replication, generators generate random values. Then, simulations are made. The ABC process selects simulation replications with good fit to observed data and stores the directory names of the selected replications in `TOLSel_rejection_tumor_content=*_tol=*.txt`*.*
+-   In each simulation replication, generators generate random values. Then, simulations are performed. The ABC process selects simulation replications with good fit to observed data and stores the directory names of the selected replications in `TOLSel_rejection_tumor_content=*_tol=*.txt`*.*
 
-    -   From this list, simulation replications are re-sampled into `work/TCGA-55-7903-01A-11D-2167-08/`. Then, without using generators this time, simulations are made.
+    -   From this list, simulation replications are re-sampled into `work/TCGA-55-7903-01A-11D-2167-08/`. Then, without using generators this time, simulations are performed.
 
 -   In other words, selected parameter values can be tracked to simulation replications in `work/first/` with the directory names listed in `ABC1/`'s `TOLSel_rejection_tumor_content=*_tol=*.txt`*.*
 
-    -   (`ABC2/`'s `TOLSel_rejection_tumor_content=*_tol=*.txt`\
-        corresponds to\
+    -   (Meanwhile, `ABC2/`'s `TOLSel_rejection_tumor_content=*_tol=*.txt`\
+        correspond to\
         `work/TCGA-55-7903-01A-11D-2167-08/`)
 
 -   In our experience, several rounds of ABC were necessary to obtain good fit we satisfied with.

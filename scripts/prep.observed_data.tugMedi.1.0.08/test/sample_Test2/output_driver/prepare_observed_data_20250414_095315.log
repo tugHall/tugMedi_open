@@ -1,0 +1,6 @@
+Start date and time: 2025-04-14 09:53:15
+Sample file path: ./test/sample_Test2/output_vaf/TCGA.LUAD.55-7903.01_vaf.txt
+Config file path: ./test/sample_Test2/config/config_driver.conf
+Command content: python prepare_observed_data.py -i ./test/sample_Test2/output_vaf/TCGA.LUAD.55-7903.01_vaf.txt -c ./test/sample_Test2/config/config_driver.conf -m get-driver-genes -o ./test/sample_Test2/output_driver
+get-driver-genes mode start
+get-driver-genes mode passed

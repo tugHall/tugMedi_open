@@ -1,0 +1,6 @@
+Start date and time: 2025-04-14 09:53:19
+Sample file path: ./test/sample_Test1/output_vaf/samples.02_tumor_specific_vaf.txt
+Config file path: ./test/sample_Test1/config/config2.conf
+Command content: python prepare_observed_data.py -i ./test/sample_Test1/output_vaf/samples.02_tumor_specific_vaf.txt -c ./test/sample_Test1/config/config2.conf -m get-passenger-genes -o ./test/sample_Test1/output_passenger
+get-passenger-genes mode start
+get-passenger-genes mode passed

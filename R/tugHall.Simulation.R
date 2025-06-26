@@ -8,8 +8,6 @@
 #' @param saveTo The RDS file name to save results of simulation, for example 'Output/Results.sim.02.RDS'
 #' @param seed Numeric type to set seed for a simulation, if seed = NA then it will be skipped
 #' @param loadFrom The RDS file name to load results of the previous simulation if first = F
-#' @param change_parameters The list of parameters to change for a simulation
-#' @param change_files The list of files to change for a simulation
 #' @param drug_int_param Parameters for drug intervention trials
 #'
 #' @return NULL
@@ -24,8 +22,6 @@ start_simulation <- function( first = T,
                               seed = NA,
                               # only work if first = FALSE
                               loadFrom = NULL,
-                              change_parameters = NULL,
-                              change_files      = NULL,
                               drug_int_param = NULL
                              ) {
     check_packages()
@@ -34,31 +30,28 @@ start_simulation <- function( first = T,
     if ( !is.na( seed ) ) set.seed( seed )
     model_param <- read_parameters( files$in.prm, files$in.fixed_prm )
 
-    if ( first == T ) {
-        clear_tugHall.Environment()
-        
-        define_parameters( model_param ) # for pck.env
-        define_compaction_factor( files$in.cf )
-        define_regions( files$in.Rint, files$in.Rother )
-        define_gene_location( pck.env$ls_genes, files$in.CDS, files$out.CDS, model_param$save.CDS.info )
-    } else {
-        local_environment( env = pck.env )
-        load_tugHall.Environment( results = readRDS( file = loadFrom ) )
-        
-        lapply( X = names(change_parameters),
-           function(X) pck.env[[ X ]] <- change_parameters[[ X ]] )
-        files[ names(change_files) ] <- change_files[ names(change_files) ]
+    clear_tugHall.Environment()
+    
+    define_parameters( model_param ) # for pck.env
+    define_compaction_factor( files$in.cf )
+    define_regions( files$in.Rint, files$in.Rother )
+    define_gene_location( pck.env$ls_genes, files$in.CDS, files$out.CDS, model_param$save.CDS.info )
+    
+    if ( first == F ) {
+        results = readRDS( file = loadFrom )
+    } else{
+        results = NULL
     }
-
+    
     forNext <- 
-       do_simulation( first, files, model_param, drug_int_param )
+       do_simulation( first, files, model_param, drug_int_param, results )
     pck.env$clones      <- forNext$clones
     pck.env$onco_clones <- forNext$oncos
     pck.env$ttl_divs    <- forNext$ttl_divs
-
+    
     write_pnt_clones( pck.env$pnt_clones, file_out = files$out.poms, file_outA = files$out.pomsA )
     write_cna_clones( pck.env$cna_clones, file_out = files$out.CNAs )
-
+    
     res  =  get_tugHall.Environment()
     saveRDS( object = res, file = saveTo )
 }
@@ -69,51 +62,64 @@ start_simulation <- function( first = T,
 #' @param first  Logical parameter if it is the preliminary simulation or continuing one
 #' @param model_param List of model's parameters to use or change
 #' @param drug_int_param List of parameter for drug intervention trial
+#' @param results Results of the previous simulation in the form of list or environment
 #'
 #' @keywords internal
-do_simulation <- function( first, files, model_param, drug_int_param ){
+do_simulation <- function( first, files, model_param, drug_int_param, results ){
 
     local_environment( env = pck.env )
-
+    
+    pck.env$onco = oncogene$new()        # make the vector onco about the hallmarks
+    pck.env$onco$read( files$in.Rint )
+    pck.env$hall = hallmark$new()        # make a vector hall with hallmarks parameters
+    tumblers = list( apoptosis       = pck.env$tumbler_for_apoptosis_trial, 
+                     angiogenesis    = pck.env$tumbler_for_angiogenesis_trial, 
+                     immortalization = pck.env$tumbler_for_immortalization_trial, 
+                     metastasis      = pck.env$tumbler_for_metastasis_trial )
+    
+    pck.env$hall$read( file          = files$in.weights, 
+                       normalization = TRUE, 
+                       tumblers      = tumblers, 
+                       compaction_factor = pck.env$compaction_factor )
+    
+    # Names of the driver genes involved into hallmarks
+    w_drivers  =  unique( c( pck.env$hall$Ha, pck.env$hall$Hb, pck.env$hall$Hd, pck.env$hall$Hi, pck.env$hall$Him ) )
+    w_drivers  =  w_drivers[ !is.na( w_drivers ) ]
+    pck.env$DR = define_dominant_recessive( files$in.genetic_type, 
+                                            pck.env$onco$name[ w_drivers ], 
+                                            pck.env$onco$onsp[ w_drivers ] )
+    
+    # Define the names of genes in the Rother region:
+    pck.env$Rother_genes  =  setdiff(x = pck.env$onco$name, y = pck.env$DR$gene)
+    
     if ( first ) {
-       pck.env$onco = oncogene$new()        # make the vector onco about the hallmarks
-       pck.env$onco$read( files$in.Rint )
-       pck.env$hall = hallmark$new()        # make a vector hall with hallmarks parameters
-       tumblers = list( apoptosis       = pck.env$tumbler_for_apoptosis_trial, 
-                        angiogenesis    = pck.env$tumbler_for_angiogenesis_trial, 
-                        immortalization = pck.env$tumbler_for_immortalization_trial, 
-                        metastasis      = pck.env$tumbler_for_metastasis_trial )
-       
-       pck.env$hall$read( file          = files$in.weights, 
-                          normalization = TRUE, 
-                          tumblers      = tumblers, 
-                          compaction_factor = pck.env$compaction_factor )
-       pck.env$env = environ$new(Fb)        # new vector for average values of cells
-       pck.env$pnt_clones = NULL
-       pck.env$cna_clones = NULL
-       pck.env$mut_order  =  0
-       # Names of the driver genes involved into hallmarks
-       w_drivers  =  unique( c( pck.env$hall$Ha, pck.env$hall$Hb, pck.env$hall$Hd, pck.env$hall$Hi, pck.env$hall$Him ) )
-       w_drivers  =  w_drivers[ !is.na( w_drivers ) ]
-       pck.env$DR = define_dominant_recessive( files$in.genetic_type, 
-                                               pck.env$onco$name[ w_drivers ], 
-                                               pck.env$onco$onsp[ w_drivers ] )
-       # Define the names of genes in the Rother region:
-       pck.env$Rother_genes  =  setdiff(x = pck.env$onco$name, y = pck.env$DR$gene)  
+        # initial settings
+        pck.env$env = environ$new(Fb)
+        pck.env$pnt_clones = NULL
+        pck.env$cna_clones = NULL
+        pck.env$mut_order  =  0
 
-       # initial settings
-       clones      = init_clones( files$in.clone, length( pck.env$onco$cds_1 ) )
-       onco_clones = init_onco_clones( pck.env$onco, clones )
-                     init_pnt_cna_clones( clones, onco_clones ) # pom and CNA
+        clones      = init_clones( files$in.clone, length( pck.env$onco$cds_1 ) )
+        onco_clones = init_onco_clones( pck.env$onco, clones )
+                      init_pnt_cna_clones( clones, onco_clones ) # pom and CNA
+    } else {
+        pck.env$env        = results$env
+        pck.env$pnt_clones = results$pnt_clones
+        pck.env$cna_clones = results$cna_clones
+        pck.env$mut_order  = results$mut_order
+        
+        clones             = results$clones
+        onco_clones        = results$onco_clones
     }
+    
     foolproof()
     write_parameters( files$out.prm, pck.env, model_param ) 
     write_geneout( files$out.weights, pck.env$hall, compaction_factor, pck.env$CF )
     write_genetic_type( files$out.genetic_type, pck.env$DR )
-
+    
     if ( model_param$growth == 'exponential' )
        lapply( X=clones, function( X ) { X$invasion = T; X$im = NaN } )
-
+    
     cells_number <- sum_N_P_M( pck.env$env, clones )  # to calculate cells numbers for initial cells
     # update Hallmarks and probabilities
     if ( length( clones ) > 0 ){
@@ -123,11 +129,11 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
         } )
     }
     pck.env$hall$updateEnviron( pck.env$env, clones ) # to average probabilities and hallmarks
-
+    
     if ( first ) write_cloneout( files$out.clone, pck.env$env, clones, onco_clones )  #  write initial clones
     if ( control.monitor ) {
        monitor_Ncells.Nmuts( outfile = files$out.monitor.N, start = first,
-                             env = env, clones = clones, 
+                             env = pck.env$env, clones = clones, 
                              cna_clones = pck.env$cna_clones,
                              tumbler_for_event_enforcement )
        prev.pck <- monitor_pck.env( files$out.monitor.pck, first,
@@ -136,12 +142,16 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
     }
     
     # -------------------------------------------------
-
+    
     time_start  =  Sys.time()
-
+    
     # Counter for waiting divisions
-    if ( first ) ttl_divs <- 0
-
+    if ( first ) {
+        ttl_divs <- 0
+    } else {
+        ttl_divs <- results$ttl_divs
+    }
+    
     flog.info( paste( "Start of simulation time step:", pck.env$env$T ) )
     EF.Rint.data   <- .get_EF_data( files$in.EF.Rint,   tumbler_for_event_enforcement )
     EF.Rother.data <- .get_EF_data( files$in.EF.Rother, tumbler_for_event_enforcement )
@@ -150,7 +160,7 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
            && pck.env$env$T < control.censor_time_step
            && ( as.numeric( difftime( Sys.time(), time_start, units = 'secs') ) < control.censor_real_time ) ) {
         pck.env$env$T = pck.env$env$T + 1
-
+        
         # Trial
         if ( ! first ) {
             drug_c_o    <- .druggalize_clones_oncos( clones, onco_clones, drug_int_param )
@@ -167,14 +177,14 @@ do_simulation <- function( first, files, model_param, drug_int_param ){
             clones       <- restored_c_o$clones
             onco_clones  <- restored_c_o$oncos
         }
-
+        
         # new clones by invasion / metastasis
         newIMc_o    <- .make_IM_clones_oncos( clones = clones, oncos = onco_clones,
                                               model_param = model_param )
         IMc_o       <- .initialize_IM_states( clones, onco_clones )
         clones      <- c( IMc_o$clones, newIMc_o$clones )
         onco_clones <- c( IMc_o$oncos,  newIMc_o$oncos )
-
+        
         # new clones by mutations
         if ( ! tumbler_for_event_enforcement ) {
            # mutation insertion by the base algorithm

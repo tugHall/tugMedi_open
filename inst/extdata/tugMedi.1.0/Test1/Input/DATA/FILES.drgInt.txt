@@ -1,0 +1,38 @@
+#Parameter	Value
+Input_dir	'Input'
+
+# For continue
+in.prm	'Input/parameters.drgInt.txt'
+
+in.clone	'Input/cloneinit.txt'
+in.weights	'Input/hallmark_weights.txt'
+in.cf	'Input/CF.txt'
+in.fixed_prm	'Input/DATA/FIXED_PARAMETERS.txt'
+in.CDS	'Input/DATA/CCDS.current.my.txt'
+in.genetic_type	'Input/DATA/GENE_TYPE.txt'
+
+in.Rint	'Input/Rint.txt'
+in.Rother	'Input/Rother.txt'
+in.EF.Rint	'Input/EF.Rint.txt'
+in.EF.Rother	'Input/EF.Rother.txt'
+
+Output_dir	'Output'
+OutMut_dir	'Output/Mutations'
+OutInfo_dir	'Output/Info'
+OutVAF_dir	'Output/VAF'
+
+out.clone	'Output/cloneout.txt'
+out.poms	'Output/Mutations/pointMutations_B.txt'
+out.pomsA	'Output/Mutations/pointMutations_A.txt'
+out.CNAs	'Output/Mutations/CNAs.txt'
+out.prm	'Output/Info/used.parameters.txt'
+out.weights	'Output/Info/used.hallmark_weights.txt'
+out.CDS	'Output/Info/used.gene_location.txt'
+out.genetic_type	'Output/Info/used.genetic_type.txt'
+
+out.monitor.N	'Output/Info/monitor_Ncells.Nmuts.txt'
+out.monitor.pck	'Output/Info/monitor_pck.env.txt'
+
+out.log	'Output/Info/log.txt'
+
+

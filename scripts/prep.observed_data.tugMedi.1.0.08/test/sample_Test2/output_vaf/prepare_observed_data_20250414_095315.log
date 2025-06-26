@@ -1,0 +1,6 @@
+Start date and time: 2025-04-14 09:53:15
+Sample file path: ../../inst/extdata/tugMedi.1.0/Test2/Input.TCGA_7903/Samples/Processes/TCGA.LUAD.55-7903.01.txt
+Config file path: ./test/sample_Test2/config/config_vaf.conf
+Command content: python prepare_observed_data.py -i ../../inst/extdata/tugMedi.1.0/Test2/Input.TCGA_7903/Samples/Processes/TCGA.LUAD.55-7903.01.txt -c ./test/sample_Test2/config/config_vaf.conf -m get-vaf -o ./test/sample_Test2/output_vaf
+get-vaf mode start
+get-vaf mode passed

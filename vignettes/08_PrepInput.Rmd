@@ -32,7 +32,7 @@ It is better to prepare input data from templates or those you have already had 
 
 -   Do not set the same position for different poms. We assume the infinite-site model.
 
--   When you want to malfunction a suppressor, it may need to set a dummy del of driver at one- or a few-base last of the last exon.
+-   When you want to make a suppressor gene dysfunctional, it may need to set a dummy del of driver at one- or a few-base last of the last exon.
 
     -   Because of the recessive model
 
@@ -43,8 +43,6 @@ It is better to prepare input data from templates or those you have already had 
 -   Check if the values of Time_step and Condition are those you intend.
 
     -   If Time_step of a mutation conditioned on another mutation is smaller than that of the other mutation, the simulation will usually fail.
-
-    -   Adjust values of Time_step, seeing values of simulated VAFs, as explained in Analyses.
 
 ### EF.Rother.txt
 
@@ -74,13 +72,13 @@ It is better to prepare input data from templates or those you have already had 
 
 -   m0: You can find typical values in literature, such as 1e-9.
 
--   uo: Can be estimated from the idea: poms of gain-of-function tend to concentrate at a few positions in a gene, of which the total size of the exons is roughly in the scale of 1 kb. Missense (non-synonymous) mutations may be possible. For example, 1/1 kb \* (maximally) 2/3 in codons \~ as a scale, 1e-4.
+-   uo: Can be estimated from the following idea: poms of gain-of-function tend to concentrate at a few positions in a gene, of which the total size of the exons is roughly in the scale of 1 kb. Missense (non-synonymous) mutations may be possible. For example, 1/1 kb \* (maximally) 2/3 in codons \~ a scale of 1e-4.
 
--   us: Can be estimated from the idea: poms of loss-of-function tend to scatter over a gene. Non-silent, especially truncating mutations at the upper part of a gene are likely. For example, 3 / 64 in the codon table in the upper \~ as a scale, 1e-2.
+-   us: Can be estimated from the following idea: poms of loss-of-function tend to scatter over a gene. Non-silent, especially truncating mutations at the upper part of a gene are likely. For example, 3 / 64 in the codon table in the upper \~ a scale of 1e-2.
 
 -   dN: Because this represents how many cells are expected to didive in one simulation time unit (when kappa = 1), the values will be determined only from experiences in simulations.
 
-    -   When kN = NA, small values such as \<2e-2 lead to stable simulation results.
+    -   When kN = NA, small values such as \<1e-2 lead to stable simulation results.
 
 -   kN: NA will be convenient, which balances the division and death rates of **normal** (not tumor) cells.
 
@@ -92,8 +90,7 @@ It is better to prepare input data from templates or those you have already had 
 
 -   Fb: Because this is the expansion rate by angiogenesis, you can find typical values in literature, such as 1e3.
 
--   ctmax: The replication (Hayflick) limit is roughly 50 or around. Because cells have already experienced divisions until the transform into tumor, this would be roughly 50 minus 30-40 or around.
-\
+-   ctmax: The replication (Hayflick) limit is roughly 50 or around. Because cells have already experienced divisions until the transform into tumor, this would be roughly 50 minus 30-40 or around.\
 
 -   m_dup: See Processing observed data.
 
@@ -111,10 +108,9 @@ It is better to prepare input data from templates or those you have already had 
 
 -   us_del: Biologically, this would be a high value, such as 0.8.
 
--   Zim: Biologically, this would be an extremely small value, such as 1e-6.
-\
+-   Zim: Biologically, this would be an extremely small value, such as 1e-6.\
 
--   control.censor_cell_number: Typically, set as a clinically-detectable size, such as 1e9. For tumor of 10 mm in the diameter, it would be roughly 1e9.
+-   control.censor_cell_number: Typically, set it as a clinically-detectable size, such as 1e9. For tumor of 10 mm in the diameter, it would be roughly 1e9.
 
 -   control.censor_time_step: Depends on you. It would be good to set an arbitrary large number, where simulation time only depends on control.censor_cell_number.
 
@@ -136,15 +132,13 @@ It is better to prepare input data from templates or those you have already had 
 
 -   Perhaps, you many need to change the values of hyper-parameters for Time_step.
 
-    -   If a VAF value for a gene is higher than expected especially in post ABC, you may change hyper-parameters so that values of Time_step will appear at higher values.
+    -   If VAFs for a gene are higher than expected especially in post ABC, you may change hyper-parameters related to the mean of Time_step to lower.
 
         -   Vice versa for a VAF value lower than expected.
 
-    -   (If it appears that adjustments are still needed, see Time, columns related to the numbers of cells, genesMalfunc, genesWmutsNoExp, and PointMut_ID in cloneout.txt to change the hyper-parameters.)
-
 ### EF.Rother.parameters.txt
 
--   Check if N_mut is large enough
+-   N_mut is expected to be proportional to TMB.
 
 ### Rint.parameters.txt
 
@@ -166,7 +160,7 @@ It is better to prepare input data from templates or those you have already had 
 
 -   It would be better to make a small change at one time.
 
-    -   e.g., to focus only on m0 and dN with hyper-parameters that generate limited ranges of values.
+    -   e.g., to focus only on m0 and dN in limited ranges.
 
 ## ForPosts/
 
@@ -184,16 +178,17 @@ It is better to prepare input data from templates or those you have already had 
 
 ### evals.parameters\*.txt
 
--   In particular, check if sim\$n.rep is set as you intended
+-   In particular, check if sim\$n.rep is set as you intend
 
-    and if LOD is appropriately set.
-\
+    and if LOD is appropriately set.\
 
 -   Check if obs\${Rother, Rint}\$col.\* indicate the correct column numbers in your observed data.
 
 -   Check if the three glob patterns ({obs, sim}\$Rother\$glob and sim\$glob) are what you intend.
 
--   Check if sim\$type and sime\$tc are what you intend.
+-   Check if sim\$type and sime\$tc are what you intend.\
+
+-   When you get an error, check the presence of the **directory** indicated by out.\*.
 
 ### realTime.parameters.txt
 
@@ -219,4 +214,4 @@ It is better to prepare input data from templates or those you have already had 
 
     The given CCDS.current.my.txt is a copy of either CCDS.current.Hs37.my.txt (Bld. 37) or CCDS.current.Hs38.my.txt (Bld. 38).
 
--   When it does not match, copy a right one under this directory .
+-   When it does not match, copy a right one under this directory.

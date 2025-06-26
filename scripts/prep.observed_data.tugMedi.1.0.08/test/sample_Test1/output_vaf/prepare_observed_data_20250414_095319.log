@@ -1,0 +1,6 @@
+Start date and time: 2025-04-14 09:53:19
+Sample file path: ./test/sample_Test1/output_tumor_specific/samples.02_tumor_specific.txt
+Config file path: ./test/sample_Test1/config/config.conf
+Command content: python prepare_observed_data.py -i ./test/sample_Test1/output_tumor_specific/samples.02_tumor_specific.txt -c ./test/sample_Test1/config/config.conf -m get-vaf -o ./test/sample_Test1/output_vaf
+get-vaf mode start
+get-vaf mode passed

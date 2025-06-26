@@ -95,7 +95,7 @@ This file contains more detailed information to calculate VAF.\
 
 -   Time: Simulation time step
 
--   PointMut_ID: ID of the pom, which corresponds to a variant allele B, in contrast to the original allele A.
+-   PointMut_ID: ID of the pom, which corresponds to variant allele B, in contrast to original allele A.
 
 -   Parental_1or2: Indicates either of the two parental chromosomes where the pom is located.
 
@@ -107,9 +107,9 @@ This file contains more detailed information to calculate VAF.\
 
 -   Delta: Difference between the reference and physical positions.
 
--   Copy_number_A: Copy number of the allele A.
+-   Copy_number_A: Copy number of allele A.
 
--   Copy_number_B: Copy number of the allele B.
+-   Copy_number_B: Copy number of allele B.
 
 -   Gene_name: Name of a gene where the pom is located.\
 
@@ -199,7 +199,7 @@ To convert simulation time into real time.
 
 -   col.replace: Whether to replace the column of simulation time with that of real time in the output.
 
-***\* Conversion is based on any of tumor VDT (classical, [v]{.underline}olume [d]{.underline}oubling [t]{.underline}ime), tumor volume, or tumor diameter. Please select one.***\
+**\* Conversion is based on any of tumor VDT (classical, [v]{.underline}olume [d]{.underline}oubling [t]{.underline}ime), tumor volume, or tumor diameter. Please choose one.**\
 
 **VDT based conversion**
 
@@ -237,7 +237,7 @@ To convert simulation time into real time.
 
 -   realTumorSize\$deltaT.days: Same as in Volume based conversion.
 
-***\* It is unnecessary to write VDT or realTumorSize when the conversion rate of time units, cnvRate, is given in the function:*** `write_realTime_clone( ..., cnvRate = tau )`
+**\* It is *un*necessary to write VDT or realTumorSize when the conversion rate of time units, cnvRate, is given in the function as follows:** `write_realTime_clone( ..., cnvRate = tau )`
 
 ### Run
 
@@ -295,7 +295,7 @@ To evaluate simulated VAFs at **last** simulation time step, based on observed V
 
 -   obs\$Rother\$glob: Glob pattern to capture the names of Rother genes to rename as the same name.
 
-    -   Rother genes are indistinguishable regions where only passenger mutations reside.\
+    -   Rother genes are **indistinguishable** regions where only passenger mutations reside.\
 
 -   sim\$glob: Glob pattern to capture the files of VAF.txt.
 
@@ -307,11 +307,12 @@ To evaluate simulated VAFs at **last** simulation time step, based on observed V
 
 -   sim\$n.rep: Number of simulation replications you performed.
 
-    -   Please set it to the number of simulation replications you initially intended. Bad settings of parameter values increase simulation stops, where you will get a smaller number of VAF.txt files than you initially intended. For example, you may try 1000 simulations but may get only 950 VAF.txt files. Please set it to 1000. VAFs of zero values are supplied for the 50 stopped replications like "penalty".
+    -   Please set it to the number of simulation replications you initially intended. For example, you perform 1000 simulations but may get only 950 VAF.txt files due to 50 program stops. In this case, please set it to 1000, not 950.
+    -   VAFs of zero values are supplied for the 50 stopped replications, like "penalty". Bad settings of parameter values often cause program stops and can be penalized in this way.
 
 -   sim\$Rother\$glob: Glob pattern to capture the names of Rother genes to rename as the same name.\
 
--   LOD: Limit of detection (LOD) of VAF. VAFs below this value are *converted to 0*.
+-   LOD: Limit of detection (LOD) of VAF. VAFs below this value are **converted to 0** in evaluation.
 
 -   out.stats: File path to the output, evals.stats.txt.
 
@@ -363,7 +364,7 @@ This command inputs evals.parameters.txt and outputs evals.stats.txt and evals.o
 
 #### Output/Info/evals.obs_sims.txt
 
-This file shows the evaluated original data for confirmation, and for visualization to evaluate and for re-use for other evaluation methods.\
+This file shows original data used for evaluation, which is usable for confirmation and for other evaluation methods.\
 
 ***Columns***
 

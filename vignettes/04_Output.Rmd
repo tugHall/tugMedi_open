@@ -78,9 +78,9 @@ This file contains the simulation results of clones at each time step.\
 
 -   total_divIdx: Total number of cell divisions.
 
--   genesMalfunc: Genes malfunctioned.
+-   genesDysfunc: Dysfunctional genes.
 
--   genesWmutsNoExp: Genes with mutations not expressed. Such mutations are passenger mutations, or driver mutations on either parental chromosome in the recessive genetic mode.
+-   genesWmutsNoExp: Genes with mutations not expressed, i.e., mutations not causing the dysfunctional state. Such mutations are passenger mutations, or driver mutations on either parental chromosome in the recessive genetic mode.
 
 -   PointMut_ID: pom ID the clone has. This ID corresponds to pom ID in pointMutations_B.txt and pointMutations_A.txt.
 
@@ -110,7 +110,7 @@ The files contain data on poms ([po]{.underline}int [m]{.underline}utations) of 
 
 -   Gene_name: Name of a gene where the pom resides.
 
--   MalfunctionedByPointMut: Logical indicator of whether or not the gene is malfunctioned by the pom.
+-   MalfunctionedByPointMut: Logical indicator of whether or not the gene is made dysfunctional by the pom.
 
 -   Ovlp_CNA_ID: CNA ID in CNAs.txt that overlaps with the pom on the chromosome.
 
@@ -142,7 +142,7 @@ This directory contains additional information.
 
 ### used.\*.txt
 
-Input data that once went through the program, which are used for confirmation.\
+Input data that once went through the program, which are useful for confirmation.\
 
 ***Notable columns in used.hallmark_weights.txt***
 
