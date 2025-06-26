@@ -1,0 +1,19 @@
+#Parameter	Value 
+skeleton	./Input/ForGenerators/hallmark_weights.skeleton.txt
+out	./Input/hallmark_weights.txt
+
+dist$apoptosis$spec	dirichlet
+dist$apoptosis$alpha.column	NULL
+
+dist$growth$spec	dirichlet
+dist$growth$alpha.column	NULL
+
+dist$angiogenesis$spec	dirichlet
+dist$angiogenesis$alpha.column	NULL
+
+dist$immortalization$spec	dirichlet
+dist$immortalization$alpha.column	NULL
+
+dist$invasion$spec	dirichlet
+dist$invasion$alpha.column	NULL
+

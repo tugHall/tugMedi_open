@@ -1,0 +1,32 @@
+Package: tugMedi
+Title: Realistic simulator for personalized cancer genome medicine
+Version: 1.0
+Authors@R: c(
+    person("Iurii", "Nagornov", , "inagonov@ncc.go.jp", role = c("aut", "cre") ),
+    person("Munmee", "Dutta", , "dmunmee@ncc.go.jp", role = "ctb"),
+    person("Jo", "Nishino", , "jnishino@ncc.go.jp", role = "ctb"),
+    person("Eisaku", "Furukawa", , "efurukaw@ncc.go.jp", role = "ctb"),
+    person("Mamoru", "Kato", , "mamkato@ncc.go.jp", role = "aut")
+  )
+Description: tugMedi (tumor genome Medical) is a simulator of cancer-cell evolution for personalized medicine based on the genomic data of patients.
+License: Non-Commercial | file LICENSE
+Depends: 
+    R (>= 3.6.0)
+Imports:
+    methods,
+    stats,
+    stringr,
+    withr,
+    utils,
+    dplyr,
+    truncdist,
+    dirmult,
+    MASS,
+    futile.logger
+Suggests: 
+    rmarkdown
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+LazyData: true
+VignetteBuilder: knitr

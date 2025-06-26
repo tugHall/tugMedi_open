@@ -1,0 +1,167 @@
+---
+title: "Output data"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Output data
+
+## Output/
+
+### cloneout.txt
+
+This file contains the simulation results of clones at each time step.\
+
+***Columns***
+
+-   Time: Simulation time step.
+
+-   AvgOrIndx: 'avg' or index number. 'avg' is for a line with averaged values across different lines at the same time step. An index number shows the index of a clone within the current time step.
+
+-   ID: ID of a clone.
+
+-   Parent_ID: Parental clone ID of the clone.
+
+-   Birth_time: Time step of the clone's birth.
+
+-   Type: ''primary, 'metastatic', or 'normal', which represent the clone is of primary tumor, metastatic tumor, or normal tissue, respectively.\
+
+-   N_cells: The number of cells in this clone.
+
+-   N_primary: The number of primary tumor cells at this time step.
+
+-   N_metastatic: Same as above for metastatic tumor cells.
+
+-   N_normal_intact: Same as above for normal intact cells (normal cells without mutations).
+
+-   N_normal_speckled: Same as above for normal speckled cells (normal cells with passenger mutations).\
+
+-   ct: The counter of cell divisions for the clone. It equals the mean across all cells in the clone.
+
+-   d: Cell division rate.
+
+-   k: Constant cell death rate.
+
+-   a: The rate of cell death due to apoptosis.
+
+-   i: Probability of the effect of immortalization, namely that cells avoid the replication (Hayflick) limit to divide.
+
+-   im: Probability of trying invasion/metastasis.
+
+-   K: Carrying capacity for the primary tumor in the logistic growth.
+
+-   Nmax: Theoretically maximal number of primary tumor cells, namely inverse of K.
+
+-   Hd: Value of the hallmark variable "Growth / Anti-growth".
+
+-   Ha: Same as above for "Apoptosis".
+
+-   Hi: Same as above for "Immortalization".
+
+-   Him: Same as above for "Invasion / Metastasis".
+
+-   Hb: Same as above for "Angiogenesis".\
+
+-   mutden: Density of passenger poms per bp.
+
+-   total_divIdx: Total number of cell divisions.
+
+-   genesMalfunc: Genes malfunctioned.
+
+-   genesWmutsNoExp: Genes with mutations not expressed. Such mutations are passenger mutations, or driver mutations on either parental chromosome in the recessive genetic mode.
+
+-   PointMut_ID: pom ID the clone has. This ID corresponds to pom ID in pointMutations_B.txt and pointMutations_A.txt.
+
+-   CNA_ID: Same as above for CNA ID and CNAs.txt.
+
+## Output/Mutations/
+
+### pointMutations_B.txt and pointMutations_A.txt
+
+The files contain data on poms ([po]{.underline}int [m]{.underline}utations) of the variant allele B (\_B.txt) and the original allele A (\_A.txt), respectively.\
+
+***Columns***
+
+-   PointMut_ID: ID of a pom, which corresponds to the allele B or A.
+
+-   Parental_1or2: Either of the two parental chromosomes where the pom resides.
+
+-   Chr: Name of a chromosome where the pom resides.
+
+-   Ref_pos: Reference position of the pom. The reference position is on the coordinate system of the human reference genome.
+
+-   Phys_pos: Physical position of the pom. The physical length of a (parental) chromosome is extended or shrunk by CNA duplications or deletions, respectively.
+
+-   Delta: Difference between the reference and physical positions.
+
+-   Copy_number: Copy number of the allele B or A of the pom.
+
+-   Gene_name: Name of a gene where the pom resides.
+
+-   MalfunctionedByPointMut: Logical indicator of whether or not the gene is malfunctioned by the pom.
+
+-   Ovlp_CNA_ID: CNA ID in CNAs.txt that overlaps with the pom on the chromosome.
+
+### CNAs.txt
+
+This file contains data on CNAs.\
+
+***Columns***
+
+-   CNA_ID: ID of a CNA.
+
+-   Parental_1or2: Same as in pointMutations_B.txt and pointMutations_A.txt for CNA.
+
+-   dupOrdel: Indicator of dup ([dup]{.underline}lication) or del ([del]{.underline}etion) for CNA.
+
+-   Chr: Same as in pointMutations_B.txt and pointMutations_A.txt for CNA.
+
+-   Ref_start: Reference position of the CNA start.
+
+-   Ref_end: Reference position of the CNA end.
+
+-   Gene_names: Name(s) of a gene(s) where the CNA resides.
+
+-   MalfunctionedByCNA: Same as in pointMutations_B.txt for CNA.
+
+## Output/Info/
+
+This directory contains additional information.
+
+### used.\*.txt
+
+Input data that once went through the program, which are used for confirmation.\
+
+***Notable columns in used.hallmark_weights.txt***
+
+-   weight_woCF: Weight parameter values without multiplied by compaction factors.
+
+-   weight_used: Weight parameter values used.
+
+### monitor\_\*.txt
+
+Monitoring files for debugging and development.
+
+### log.txt
+
+Log file.
+
+### Other files
+
+See the section of Post processes.
+
+## Output/VAF/
+
+See the section of Post processes.

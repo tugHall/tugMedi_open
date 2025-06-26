@@ -1,0 +1,17 @@
+#Parameter	Value 
+skeleton	./Input/ForGenerators/hallmark_weights.skeleton.txt
+out	./Input/hallmark_weights.txt
+
+dist$apoptosis$spec	dirichlet.mode
+dist$apoptosis$alpha.column	Weight
+
+dist$growth$spec	dirichlet
+dist$growth$alpha.column	Weight
+
+dist$angiogenesis$spec	dirichlet.mode
+dist$angiogenesis$alpha.column	Weight
+
+dist$immortalization$spec	dirichlet.mean
+dist$immortalization$alpha.column	Weight
+
+

@@ -1,0 +1,420 @@
+
+
+
+## Ensemble plot of tumor growth ====================================================================
+### Move under directory you set. There you see replications 0001/, 0002/, ...
+
+
+### For VDT adjust
+#### Bests based on second ABC distancs
+awk '$0 !~ /param/ { printf "%06d/\n", $0 }' ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt | xargs -i sh -c 'echo -n -e "{}\t"; tail -n 1 {}Output/cloneout.txt' |cut -f1,2,9|awk '$3 > 1e9' |xargs -n 3 sh -c 'awk -F"\t" "{print FILENAME, \$1, \$8, \$1, \$2, ${1}, ${2} }" ${0}Output/cloneout.txt' |grep -v avg|sed 's/ /\t/g'|cut -f1-4|grep -v -P '\tN_primary'|sort|uniq | sort -k1,1 -k2,2n -k3,3nr > ../ensemble.tg.forVDT.txt 
+### Change: %06d/\n
+### Change: ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt 
+
+
+#### Bests, based on second ABC distancs
+awk '$0 !~ /param/ { printf "%06d/\n", $0 }' ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt | xargs -i sh -c 'test -e {}Output/cloneout.realTime.txt && echo {}' | xargs -i sh -c 'echo -n -e "{}\t"; tail -n 1 {}Output/cloneout.realTime.txt' |cut -f1,2,9|awk '$3 > 1e9' |xargs -n 3 sh -c 'awk -F"\t" "{print FILENAME, \$1-${1}, \$8, \$1, \$2, ${1}, ${2} }" ${0}Output/cloneout.realTime.txt ${0}Output/cloneout.realTime.drg.txt' |grep -v avg|sed 's/ /\t/g'|cut -f1-4|grep -v -P '\tN_primary' |sort |uniq |sort -k1,1 -k2,2n -k3,3nr > ../ensemble.tg..realTime.txt 
+### Change: %06d/\n
+### Change: ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt 
+
+
+## Ensemble plot 
+
+
+library(ggplot2)
+library(scales)
+library(dplyr)
+library(tidyr)
+library(zoo)
+# V1: file name
+# V2: Time backward
+# V3: N_primary
+# V4: (Original) Time
+
+
+cc <- read.table("clipboard", header=F)
+
+
+dd <- cc
+
+## unique rows
+dd <- dd %>%
+  distinct() 
+
+## complete lacking time for aggregation
+complete_time <- function( data, LorR ) {
+  allTime <- sort( unique( data$V2 ) )
+  
+  data %>%
+    group_by(V1) %>%
+    complete(V2 = allTime) %>%
+    mutate(
+      left  = min( which( !is.na(V3) ) ) - 1,
+      right = max( which( !is.na(V3) ) ) + 1,
+      
+      V3 = if   (LorR == "L") {
+         if_else( row_number() <= left,  as.numeric(0), as.numeric(V3) )
+      } else if (LorR == "R") {
+         if_else( right <= row_number(), as.numeric(0), as.numeric(V3) )
+      } else {
+         V3
+      }, 
+      
+#      V3 = ifelse(is.na(V3), na.spline(V3, na.rm = FALSE), V3),  # Cant use due to edge oscillation
+      V3 = ifelse(is.na(V3), zoo::na.approx(V3, na.rm = FALSE, rule=1), V3),  # linear interpolation
+      V4 = ifelse(is.na(V4), NA,                                        V4)
+    ) %>%
+    ungroup()
+} 
+
+
+## Select raw or realTime -----------------------------------------------------------------------------------
+
+
+### Raw, eg, for VDT
+# dd <- complete_time( dd, "NONE" )
+
+
+### realTime
+dd1 <- dd[ grepl("cloneout\\.realTime\\.txt$",       dd$V1), ]
+dd2 <- dd[ grepl("cloneout\\.realTime\\.drg\\.txt$", dd$V1), ]
+dd1 <- complete_time( dd1, "L" )
+dd2 <- complete_time( dd2, "R" )
+dd <- rbind(dd1, dd2)
+
+
+## remove NA
+dd <- dd %>%
+  mutate(V3 = as.numeric(V3)) %>%
+  filter(!is.na(V3)) 
+
+## filter n > xx
+dd <- dd %>%
+  group_by(V2) %>%
+#  filter(n() >= 1e2) %>%  
+  filter(n() >= 1) %>%  
+  ungroup()
+
+
+#qpoints <- rev( seq( 0, 1, by=0.01 ) )
+qpoints <- rev( seq( 0.25, 0.75, by=0.05 ) )
+## 
+qus <- dd %>%
+  group_by(V2) %>%
+  summarise(
+    qus_y = list(quantile(V3, probs = qpoints)),
+    .groups = "drop"
+  ) %>%
+  unnest_wider(qus_y) %>%
+  pivot_longer(
+    cols = matches("\\d+%$"),
+    names_to = "quantile",
+    values_to = "value"
+  ) %>%
+  mutate( quantile = factor(quantile, levels = paste0(qpoints * 100, "%") )
+  )
+
+
+colpal <- colorRampPalette(c("red", "magenta", "blue"))( length(qpoints) )
+col <- setNames( colpal, paste0( qpoints*100, "%" ) )
+
+linetypes <- setNames(rep("dashed", length(qpoints)), paste0(qpoints * 100, "%"))
+linetypes["50%"] <- "solid" 
+
+sizes <- setNames(rep(0.5, length(qpoints)), paste0(qpoints * 100, "%"))
+sizes["50%"] <- 1.0 
+
+pp <- ggplot(dd, aes(x = V2, y = V3)) +
+  geom_line( data = qus, aes(x = V2, y = value, color = quantile, linetype = quantile, linewidth = quantile)) + 
+  geom_point(data = qus %>% filter(quantile == "50%"), aes(x = V2, y = value, color = quantile), size=2, shape=1) + 
+  scale_color_manual(values = col) + 
+  scale_linetype_manual(values = linetypes) + 
+  scale_linewidth_manual(values = sizes) +
+  labs(x = "Time", y = "Number of cells") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+  geom_hline(yintercept = 1e6, col="green") +
+  theme_minimal() + 
+  guides(color     = guide_legend(title = "Percentile", override.aes = list(shape = NA)), 
+         linetype  = guide_legend(title = "Percentile"), 
+         linewidth = "none")
+
+pp.out <- 
+pp + coord_cartesian( xlim = c(0, 10), ylim = c(0, 1e9) ) + scale_x_continuous(breaks = seq(-30, 30, by = 1)) 
+pp.out
+
+
+# For VDT
+pp + coord_cartesian( xlim = c(0, 50), ylim = c(0, 5e4) )
+
+
+
+## Timing of initial -------------------------------------------------------------------------------------
+
+
+init <- dd %>%
+  filter(V2 < 0) %>%
+  filter(V3 == 1) %>%
+  group_by(V1) %>%
+  filter(V2 == min(V2)) %>%
+  ungroup()
+
+
+stats.init <- init %>%
+summarise(
+   nmbr_x = length(V2),
+   mean_x = mean(V2),
+   medn_x = median(V2),
+   up.1_x = quantile(V2, 0.75),
+   dw.1_x = quantile(V2, 0.25)
+)
+
+
+ppi <- pp + 
+  geom_vline(data=stats.init, aes(xintercept = medn_x), color = "red", alpha = 0.9) +
+  geom_vline(data=stats.init, aes(xintercept = up.1_x), color = "red", linetype = "dashed", alpha = 0.8) +
+  geom_vline(data=stats.init, aes(xintercept = dw.1_x), color = "red", linetype = "dashed", alpha = 0.8)
+ppi
+
+pp.out <-
+ppi + coord_cartesian( ylim = c(0, 2e9) ) + scale_x_continuous(breaks = seq(-30, 30, by = 5)) 
+pp.out
+
+
+
+## Timing of mutations -------------------------------------------------------------------------------------
+
+
+### For conversion rate
+awk '$0 !~ /param/ { printf "%06d/\n", $0 }' ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt | xargs -I {} sh -c "[ -f {}Output/cloneout.realTime.txt ] && awk -F"\t" 'NR==5 {print $1}' {}Output/cloneout.realTime.txt" | cut -f1 | less 
+### Change: %06d/\n
+### Change: ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt 
+### Assume: NR == 5 
+
+
+### With time adjustment
+awk '$0 !~ /param/ { printf "%06d/\n", $0 }' ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt | xargs -i sh -c 'echo -n -e "{}\t"; tail -n 1 {}Output/cloneout.txt' |cut -f1,2,9|awk '$3 > 1e9' |xargs -n 3 sh -c 'awk -F"\t" "{print FILENAME, \$1-${1}, \$2, \$1, ${1}, ${2} }" ${0}Input/EF.Rint.txt' |sed 's/ /\t/g'|cut -f1-3|grep -P -v '\tMutation' | awk -F"\t" -v OFS="\t" '{print $1, $2 * 0.145, $3}' > ../ensemble.tg.muts.txt 
+### !!! Change: 0.145 (conversion rate) !!!
+### Change: %06d/\n
+### Change: ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt 
+
+
+
+# V1: file name
+# V2: Time
+# V3: Mutation
+
+
+mm <- read.table("clipboard", header=F)
+
+
+stats.mm <- mm %>%
+group_by(V3) %>%
+summarise(
+   nmbr_x = length(V2),
+   mean_x = mean(V2),
+   medn_x = median(V2),
+   up.1_x = quantile(V2, 0.75),
+   dw.1_x = quantile(V2, 0.25)
+)
+
+
+nmuts <- length( unique( mm$V3 ) )
+col <- heat.colors( nmuts + 1 )[-1] # remove initial col
+
+
+ppm <- ppi + 
+  geom_vline(data=stats.mm, aes(xintercept = medn_x), color = col, alpha = 0.9) +
+  geom_vline(data=stats.mm, aes(xintercept = up.1_x), color = col, linetype = "dashed", alpha = 0.8) + 
+  geom_vline(data=stats.mm, aes(xintercept = dw.1_x), color = col, linetype = "dashed", alpha = 0.8) + 
+  labs(x = "Time (year)", y = "Number of cells") + 
+  theme(   
+  axis.text.x  = element_text(size = 20, face = "bold"), 
+  axis.text.y  = element_text(size = 20, face = "bold"), 
+  axis.title.x = element_text(size = 24, face = "bold"), 
+  axis.title.y = element_text(size = 24, face = "bold"), 
+  panel.border = element_rect(color = "black", fill = NA, linewidth = 2), 
+  panel.grid.major = element_line(color = "grey85"),  
+  panel.grid.minor = element_line(color = "grey85") , 
+  legend.text  = element_text(size = 22),  
+  legend.title = element_text(size = 22)  
+  ) 
+ppm
+
+
+pp.out <- 
+ppm + coord_cartesian( xlim = c(-20, 10), ylim = c(0, 1.5e9) ) + scale_x_continuous(breaks = seq(-30, 30, by = 5)) 
+pp.out
+
+
+pp.out <- 
+ppm + coord_cartesian( xlim = c(-30, 10), ylim = c(0, 1.5e9) ) + scale_x_continuous(breaks = seq(-30, 30, by = 5)) 
+pp.out
+
+
+ggsave("tg.png", plot = pp.out, dpi=600, width = 8, height = 5)
+
+
+pp.out <- 
+ppm + coord_cartesian( xlim = c(  0, 10), ylim = c(0, 1.0e7) ) + scale_x_continuous(breaks = seq(-30, 30, by = 1)) 
+pp.out
+
+
+pp.out <- 
+ppm + coord_cartesian( xlim = c(  0, 10), ylim = c(0, 5.0e6) ) + scale_x_continuous(breaks = seq(-30, 30, by = 1)) 
+pp.out
+
+
+
+rm(list = ls())
+graphics.off()
+
+
+
+## Ensemble plot of sub-pop ================================================================================
+
+
+### Bests
+#awk '$0 !~ /param/ { printf "%06d/\n", $0 }' ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt | xargs -i sh -c 'test -e {}Output/cloneout.realTime.txt && echo {}' | xargs -i sh -c 'echo -n -e "{}\t"; tail -n 1 {}Output/cloneout.realTime.txt' |cut -f1,2,9|awk '$3 > 1e9' |xargs -n 3 sh -c 'awk -F"\t" "{print FILENAME, \$1-${1}, ${1}, ${2}, \$0}" ${0}Output/cloneout.realTime.txt ${0}Output/cloneout.realTime.drg.txt' |sed 's/ /\t/g'|grep -v avg|cut -f1,2,7,11| grep -P -v '\tN_' > ../ensemble.subpop..txt 
+
+
+### Bests & resurge
+awk '$0 !~ /param/ { printf "%06d/\n", $0 }' ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt | xargs -i sh -c 'test -e {}Output/cloneout.realTime.txt && echo {}' | xargs -i sh -c 'echo -n -e "{}\t"; tail -n 1 {}Output/cloneout.realTime.drg.txt' | awk -F"\t" '$28 !~ /-/ {print $1}' | xargs -i sh -c 'echo -n -e "{}\t"; tail -n 1 {}Output/cloneout.realTime.txt' |cut -f1,2,9|awk '$3 > 1e9' |xargs -n 3 sh -c 'awk -F"\t" "{print FILENAME, \$1-${1}, ${1}, ${2}, \$0}" ${0}Output/cloneout.realTime.txt ${0}Output/cloneout.realTime.drg.txt' |sed 's/ /\t/g'|grep -v avg|cut -f1,2,7,11| grep -P -v '\tN_' > ../ensemble.subpop..txt 
+### Change: %06d/\n
+### Change: ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt 
+### Note: selection by $28 !~ /-/ for resurge
+
+
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(zoo)
+library(scales)
+# V1: file name
+# V2: Time
+# V3: ID
+# V4: N_cells
+
+
+ss <- read.table("clipboard", header=F)
+
+
+## complete lacking time for aggregation
+complete_time <- function( data, LorR ) {
+  allTime <- sort( unique( data$V2 ) )
+  
+  data %>%
+    group_by(V1,V3) %>%
+    complete(V2 = allTime) %>%
+    mutate(
+      left  = min( which( !is.na(V4) ) ) - 1,
+      right = max( which( !is.na(V4) ) ) + 1,
+      
+      V4 = if   (LorR == "L") {
+         if_else( row_number() <= left,  as.numeric(0), as.numeric(V4) )
+      } else if (LorR == "R") {
+         if_else( right <= row_number(), as.numeric(0), as.numeric(V4) )
+      } else {
+         V4
+      }, 
+      
+      V4 = ifelse(is.na(V4), zoo::na.approx(V4, na.rm = FALSE, rule=1), V4),
+    ) %>%
+    ungroup()
+} 
+
+ss1 <- ss[ grepl("cloneout\\.realTime\\.txt$",       ss$V1), ]
+ss2 <- ss[ grepl("cloneout\\.realTime\\.drg\\.txt$", ss$V1), ]
+ss1 <- complete_time( ss1, "L" )
+ss2 <- complete_time( ss2, "R" )
+ss <- rbind(ss1, ss2)
+
+## remove NA
+ss <- ss %>%
+  mutate(V4 = as.numeric(V4)) %>%
+  filter(!is.na(V4))
+
+
+# top X
+sorted_data <- ss %>%
+  group_by(V1, V2) %>%
+  arrange(desc(V4)) %>%  
+  slice_head(n = 10)  # top X
+  
+renamed_data <- sorted_data %>%
+  group_by(V1, V2) %>%
+  mutate(V3_new = row_number())
+
+
+## filter
+renamed_data <- renamed_data %>%
+  group_by(V2, V3_new) %>%
+  filter(n() >= 1) %>%  # n >= x
+  ungroup()
+
+
+stats.ss <- renamed_data %>%
+  group_by(V2, V3_new) %>%
+  summarise(
+     nmbr_y = length(V4),
+     mean_y = mean(V4),
+     medn_y = median(V4),
+     up.1_y = quantile(V4, 0.75),
+     dw.1_y = quantile(V4, 0.25),
+    .groups = 'drop'
+  )
+
+
+col        <- rainbow(length(unique( stats.ss$V3_new )))
+names(col) <- unique( stats.ss$V3_new )
+
+stats.ss$V3_new <- as.factor(stats.ss$V3_new)
+pp.ss <- ggplot( stats.ss, aes(x = V2, y = medn_y, color = V3_new, group = V3_new) ) +
+  geom_line( linewidth = 1.5 ) +
+  geom_point( size = 2, shape = 1 ) +
+  scale_color_manual(values = col) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+  theme_minimal() +
+  theme(legend.position = "none")
+pp.ss
+
+
+pp.ss2 <- pp.ss + 
+  geom_line(aes(x = V2, y = up.1_y, group = V3_new), color = rgb(1, 0, 0, alpha = 0.8), linetype = "dashed") +
+  geom_line(aes(x = V2, y = dw.1_y, group = V3_new), color = rgb(0, 0, 1, alpha = 0.8), linetype = "dashed") 
+pp.ss2 
+
+
+# y-axis range of pp.ss 
+y_limits <- ggplot_build( pp.ss )$layout$panel_scales_y[[1]]$range$range
+pp.ss2 + coord_cartesian( xlim=c(-20, 10), ylim = y_limits ) + scale_x_continuous(breaks = seq(-30, 30, by = 5))
+
+
+pp.out <- pp.ss2 + 
+  coord_cartesian( xlim=c(0, 5), ylim = c(0, 1.0e6) ) +  # !!!!! adjust !!!!!
+  geom_hline(yintercept = 1e6, col="green") + 
+  scale_x_continuous(breaks = seq(-30, 30, by = 1)) + 
+  scale_y_continuous(labels = scientific_format()) + 
+  labs(x = "Time (year)", y = "Number of cells") + 
+  theme( 
+    axis.text.x  = element_text(size = 20, face = "bold"), 
+    axis.text.y  = element_text(size = 20, face = "bold"), 
+    axis.title.x = element_text(size = 24, face = "bold"), 
+    axis.title.y = element_text(size = 24, face = "bold"), 
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 2), 
+    panel.grid.major = element_line(color = "grey85"),  
+    panel.grid.minor = element_line(color = "grey85") 
+  )
+pp.out
+
+
+
+ggsave("subpop.png", plot = pp.out, dpi=600, width = 8, height = 5)
+
+
+
+rm(list = ls())
+graphics.off()
+
+
+

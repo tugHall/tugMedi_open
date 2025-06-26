@@ -1,0 +1,315 @@
+---
+title: "Input data"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Input data
+
+## Input/
+
+### CF.txt
+
+This file defines compaction factors.\
+
+***Columns***
+
+-   Hallmark: Hallmark name. Either of 'apoptosis', 'growth', 'immortalization', or 'invasion'.
+
+    -   The compaction factor of angiogenesis is mathematically equivalent to Fb in parameter.txt. Thus, it is unnecessary to specify it here.
+
+-   CompactionFactor: Value of the compaction factor, ranging from 0 to 1.
+
+### cloneinit.txt
+
+This file defines the initial state of a clone or clones.\
+
+***Columns***
+
+-   cloneID: ID to distinguish a clone from another
+
+-   Ncells: Number of cells in the initial clone
+
+-   Type: Mutation type. Either of 'pom', 'del', or 'dup'.
+
+    -   pom is [po]{.underline}int [m]{.underline}utation, del is [del]{.underline}etion of CNA, and dup is [dup]{.underline}lication of CNA.
+
+    -   Poms correspond to SNVs and indels in reality.
+
+        \* Note that short deletions and insertions in reality are not dels or dups, but poms.
+
+-   Gene: Gene name where the mutation resides.
+
+-   Chr: Chromosome number where the mutation resides.
+
+-   Chr_stt: Chromosomal starting position of the mutation.
+
+-   Chr_end: Chromosomal ending position of the mutation. NA for pom.
+
+-   Pchr: Parental chromosome number 1 or 2 (either paternal or maternal) where the mutation resides.
+
+    -   This information is used to decide if the mutation is expressed according to the recessive or dominant mode of the gene.
+
+-   DrvPss: 'drv' or 'pss', which represents the mutation is [dr]{.underline}i[v]{.underline}er or [p]{.underline}a[ss]{.underline}enger, respectively. Usually, 'drv' is used.
+
+    \* If an initial clone does not have any mutations, set NA for the columns from Type to DrvPss. But this is not a usual use case.
+
+### hallmark_weights.txt
+
+This file defines hallmark weights for each gene.\
+
+***Columns***
+
+-   Hallmark: Hallmark name. Either of 'apoptosis', 'growth', 'immortalization', or 'invasion', or 'angiogenesis'.
+
+-   Gene: Gene name.
+
+-   Weight: Weight values.
+
+    -   The values are normalized such that the summation across genes for a hallmark is 1.
+
+### parameters.txt
+
+This file defines parameters.\
+
+***Parameters***
+
+-   m0: Mutation rate of a pom per bp per cell division.
+
+-   uo: Rate at which a gene defined as oncogene is malfunctioned by the occurrence of a pom.
+
+-   us: Same as above for a suppressor.
+
+-   dN: Cell division rate of a normal cell per (simulation) time step.
+
+-   kN: Rate of constant cell death per time step. NA can be used, where a value that derives the equilibrium state between cell division and cell death is calculated and given.
+
+-   sN: The gain parameter for a sigmoid function that determines the rate of cell death by apoptosis.
+
+-   K_N: Carrying capacity in logistic growth.
+
+-   Fb: Expansion order (10^Fb^) to K_N due to angiogenesis.
+
+-   ctmax: The residual count of cell divisions to the maximum count of the replication (Hayflick) limit\
+
+-   m_dup: Mutation rate of a dup per bp per cell division.
+
+-   m_del: Same as above for a del.
+
+-   ave_len_dup: Average chromosomal length of a dup.
+
+    -   The individual lengths of dups are randomly selected by an exponential distribution with this average.
+
+-   ave_len_del: Same as above for a del.
+
+-   uo_dup: Rate at which a gene defined as oncogene is malfunctioned by the occurrence of a dup.
+
+-   us_dup: Same as above for suppressor. Usually, it may be 0.
+
+-   uo_del: Same as above for oncogene by the occurrence of a del. Usually, it may be 0.
+
+-   us_del: Same as above for suppressor.
+
+-   Zim: Probability of the success of invasion/metastasis in the proportional metastatic model.\
+
+-   tumbler_for_metastasis_trial: Switch to turn on/off the invasion/metastasis trial.
+
+-   tumbler_for_apoptosis_trial: Same as above for the apoptosis trial.
+
+-   tumbler_for_immortalization_trial: Same as above for the immortalization trial.
+
+-   tumbler_for_angiogenesis_trial: Same as above for the angiogenesis trial.
+
+-   control.censor_cell_number: Maximun cell number at which a program run stops.
+
+-   control.censor_time_step: Same as above for maximum simulation time step.
+
+-   control.censor_real_time: Same as above for maximum real time.
+
+-   control.monitor: Switch to turn on/off monitoring a program run.
+
+### Rint.txt
+
+This file defines regions of interest, where driver mutations occur and passenger mutations can occur.\
+
+***Columns***
+
+-   Gene: Gene name, with which positional information in chromosomes is extracted from Input/DATA/CCDS.current.my.txt.
+
+-   CDS_ID: Same as above for [c]{.underline}o[d]{.underline}ing [s]{.underline}equence ID.
+
+-   Type: 's', 'o', or 'dn', which represents the gene is [s]{.underline}uppressor, [o]{.underline}ncogene, or [d]{.underline}ominant [n]{.underline}egative, respectively.
+
+### Rother.txt
+
+This file defines other regions than regions of interest. Only passenger mutations occur.\
+
+***Columns***
+
+-   Gene: Same as in Rint.txt.
+
+-   CDS_ID: Same as in Rint.txt.
+
+### EF.Rint.txt
+
+This file defines mutations to occur in Rint by the EF algorithm.\
+
+***Columns***
+
+-   Time_step: Simulation time step at which the mutation is inserted into a clone.
+
+-   Mutation: ID to distinguish a mutation from another.
+
+-   Condition: The mutation is inserted into a clone with mutation IDs indicated in this column.
+
+    -   Multiple mutations are represented by the comma-separated such as M1,M2.
+
+    -   NA is used for no condition (any clone).
+
+-   Type: Mutation type. Either of 'pom', 'del', or 'dup'.
+
+-   Gene: Gene name where the mutation occurs.
+
+    -   Multiple gene names are possible in the comma-separated form (e.g., 'gene1,gene2') for a CNA.
+
+-   Chr: Chromosome number where the mutation occurs.
+
+-   Chr_stt: Chromosomal starting position of the mutation.
+
+-   Chr_end: Chromosomal ending position of the mutation. NA for pom.
+
+-   Pchr: Parental chromosome number 1 or 2 (either paternal or maternal) where the mutation occurs.
+
+    -   This information is used to decide if the mutation is expressed according to the recessive or dominant mode of the gene
+
+-   DrvPss: 'drv' or 'pss', which represents the mutation is [dr]{.underline}i[v]{.underline}er or [p]{.underline}a[ss]{.underline}enger, respectively. Usually, 'drv' is used.
+
+### EF.Rother.txt
+
+This file defines mutations to occur in Rother by the EF algorithm.\
+
+***Columns***
+
+-   Waiting_division: Cell division count at which the mutation is inserted into a clone. Namely, "waiting division" analogy to waiting time in the queueing theory.
+
+-   Mutation: Same as in EF.Rint.txt.
+
+-   Type: Same as in EF.Rint.txt.
+
+-   Gene: Same as in EF.Rint.txt.
+
+## Input/DATA
+
+Files more fixed are stored under this directory.
+
+### CCDS.current.my.txt
+
+This file provides the chromosomal positions of exons and introns, edited from CCDS.current.txt.
+
+CCDS.current.txt is consensus CDS database from [CCDS database](https://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_human/) at the National Center for Biotechnology Information, storing data on the positions of consensus CDSs along chromosomes.
+
+This file, CCDS.current.my.txt, is edited from the original CCDS file such that genes in each chromosome are connected for the convenience of computation.
+
+### FILES.txt
+
+This file defines the paths of input and output files.
+
+### FIXED_PARAMETERS.txt
+
+This file defines parameters more fixed than parameters.txt and ones under test.\
+
+***Parameters***
+
+-   compaction_factor: Switch to turn on/off whether the compaction factor is multiplied to hallmark weights.
+
+-   kappa: Time-scaling parameter to convert trial probabilities into Poisson
+
+    lambdas. Can be interpreted as the inverse of "temporal resolution".
+
+-   tumbler_for_event_enforcement: Switch to turn on/off the EF algorithm.
+
+-   metastatic_model: Metastatic model.
+
+    -   Now 'proportional_metastatic' only ('threshold_metastatic' is under test).
+
+-   growth: Growth model for clones in primary tumor.
+
+    -   Either of 'logistic' or 'exponential'.
+
+-   trial\$spec: Probability distribution with which the trials are conducted.
+
+    -   Now 'pois' (Poisson distribution) only.
+
+-   meta.addNcells\$spec: Probability distribution with which the number of cells that metastasize together as a group is sampled.
+
+    -   Now 'pois' (Poisson distribution) only.
+
+-   meta.addNcells\$lambda: The lambda parameter for the distribution above.
+
+-   meta.loc\$sig: Under test.
+
+-   meta.loc\$sig[1,]: Under test.
+
+-   meta.loc\$sig[2,]: Under test.
+
+-   meta.loc\$sig[3,]: Under test.
+
+### GENE_TYPE.txt
+
+This file defines the relationship between gene types and malfunction rate types, and the dominant/recessive modes.\
+
+***Columns***
+
+-   type: Gene type. Either of 'o', 's', or 'dn', which represent oncogene, suppressor, or dominant negative, respectively.
+
+-   u.pom: Malfunction rate type assigned to the gene type for a pom.
+
+-   u.del: Same as above for a del.
+
+-   u.dup: Same as above for a dup.
+
+-   mode.pom: Genetic mode assigned to the gene type for a pom. Either of 'D', 'R', or 'N', which represent dominant, recessive, or not expressed (no effect on phenotype), respectively.
+
+-   mode.del: Same as above for a del.
+
+-   mode.dup: Same as above for a dup.
+
+## Samples/
+
+This folder stores observed data of VAF (variant allele frequency).
+
+### samples.Rint.txt
+
+-   Mutation data of which the columns are selected from the MAF files of TCGA data, except that the t_vaf column is added with t_alt_count / t_ref_count, which are the original MAF columns.
+
+-   The columns of gene name ('Hugo_Symbol'), sample ID ('Tumor_Sample_Barcode'), and VAF ('t_vaf') are necessary.
+
+-   The other columns are only for readability.
+
+-   The order of columns can be changed.\
+
+-   These mutations and VAFs are compared with simulated mutations and VAFs in Rother.
+
+### samples.Rother.txt
+
+-   Same as in samples.Rint.txt for Rother.
+
+## ForGenerators/
+
+See the section of Generators.
+
+## ForPosts/
+
+See the section of Post processes.

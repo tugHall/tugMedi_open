@@ -1,0 +1,12 @@
+#Parameter	Value
+input.pom	'./Output/Mutations/pointMutations_B.txt'
+input.pomA	'./Output/Mutations/pointMutations_A.txt'
+input.cna	'./Output/Mutations/CNAs.txt'
+input.cloneout	'./Output/cloneout.txt'
+
+output.VAF	'./Output/VAF/VAF.txt'
+output.ForVAF	'./Output/VAF/ForVAF.txt'
+
+tumor_content	c(1.0, 0.8, 0.6, 0.4)
+time	c(1, 10, 20, 600)
+

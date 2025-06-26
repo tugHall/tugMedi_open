@@ -1,0 +1,30 @@
+Parameter	Value
+m0	1e-09
+uo	1e-04
+us	1e-02
+dN	0.0344570428361141
+kN	NA
+sN	10
+K_N	1e06
+Fb	1e03
+ctmax	10
+
+m_dup	5e-12
+m_del	5e-12
+ave_len_dup	2e06
+ave_len_del	2e06
+uo_dup	0.8
+us_dup	0
+uo_del	0
+us_del	0.8
+Zim	1e-6
+
+tumbler_for_metastasis_trial	T
+tumbler_for_apoptosis_trial	F
+tumbler_for_immortalization_trial	F
+tumbler_for_angiogenesis_trial	F
+control.censor_cell_number	1e9
+control.censor_time_step	200
+control.censor_real_time	1e3
+control.monitor	T
+

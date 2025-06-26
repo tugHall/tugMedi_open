@@ -1,0 +1,222 @@
+---
+title: "Preparing input data"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+  
+)
+```
+
+# Preparing input data
+
+It is better to prepare input data from templates or those you have already had than from the scratch. Below, we will make notes on input data.
+
+## Input/
+
+### CF.txt
+
+-   It would be better to set the compaction factor of the division rate as, for example, around 0.1-0.3 to see the growth of cancer cells in a reasonable computation time at a reasonable time resolution.
+-   The compaction factor of invasion would be a small, for example, 1e-2.
+
+### cloneinit.txt
+
+-   Do not set the same position for different poms. We assume the infinite-site model.
+
+-   When you want to malfunction a suppressor, it may need to set a dummy del of driver at one- or a few-base last of the last exon.
+
+    -   Because of the recessive model
+
+    -   Because such a last base or bases of a deletion do not much affect the chromosomal coordinate.
+
+### EF.Rint.txt
+
+-   Check if the values of Time_step and Condition are those you intend.
+
+    -   If Time_step of a mutation conditioned on another mutation is smaller than that of the other mutation, the simulation will usually fail.
+
+    -   Adjust values of Time_step, seeing values of simulated VAFs, as explained in Analyses.
+
+### EF.Rother.txt
+
+-   Check if Type and Gene are what you intend.
+
+### Rint.txt
+
+-   Check if the genes are what you intend.
+
+-   Check if the CDS_ID and Type are what you intend.
+
+### Rother.txt
+
+-   Check if the genes are the same as those you intend in EF.Rother.txt.
+
+### hallmark_weights.txt
+
+-   Usually, the values are just generated from the generator.
+
+### parameters.txt
+
+-   If you switch off tumblers, you do not need to care about parameters related to the tumblers.
+
+-   Perform fine tuning with generators and ABC if necessary.
+
+#### For individual parameters
+
+-   m0: You can find typical values in literature, such as 1e-9.
+
+-   uo: Can be estimated from the idea: poms of gain-of-function tend to concentrate at a few positions in a gene, of which the total size of the exons is roughly in the scale of 1 kb. Missense (non-synonymous) mutations may be possible. For example, 1/1 kb \* (maximally) 2/3 in codons \~ as a scale, 1e-4.
+
+-   us: Can be estimated from the idea: poms of loss-of-function tend to scatter over a gene. Non-silent, especially truncating mutations at the upper part of a gene are likely. For example, 3 / 64 in the codon table in the upper \~ as a scale, 1e-2.
+
+-   dN: Because this represents how many cells are expected to didive in one simulation time unit (when kappa = 1), the values will be determined only from experiences in simulations.
+
+    -   When kN = NA, small values such as \<2e-2 lead to stable simulation results.
+
+-   kN: NA will be convenient, which balances the division and death rates of **normal** (not tumor) cells.
+
+    -   If you want to include the effects of unknown drivers on the cell division rate, you can set the value of kN (or dN) so that dN - kN \> 0 (as dummy).
+
+-   sN: Determined only from experiences in simulations. Mathematically, graphs of the sigmoid curves showed that around 10 would be effective.
+
+-   K_N: Because this is the carrying capacity without angiogenesis, this would be roughly 1e9. With angiogenesis, this would be roughly 1e12.
+
+-   Fb: Because this is the expansion rate by angiogenesis, you can find typical values in literature, such as 1e3.
+
+-   ctmax: The replication (Hayflick) limit is roughly 50 or around. Because cells have already experienced divisions until the transform into tumor, this would be roughly 50 minus 30-40 or around.
+\
+
+-   m_dup: See Processing observed data.
+
+-   m_del: See Processing observed data.
+
+-   ave_len_dup: See Processing observed data.
+
+-   ave_len_del: See Processing observed data.
+
+-   uo_dup: Biologically, this would be a high value, such as 0.8.
+
+-   us_dup: Perhaps, 0.
+
+-   uo_del: Perhaps, 0.
+
+-   us_del: Biologically, this would be a high value, such as 0.8.
+
+-   Zim: Biologically, this would be an extremely small value, such as 1e-6.
+\
+
+-   control.censor_cell_number: Typically, set as a clinically-detectable size, such as 1e9. For tumor of 10 mm in the diameter, it would be roughly 1e9.
+
+-   control.censor_time_step: Depends on you. It would be good to set an arbitrary large number, where simulation time only depends on control.censor_cell_number.
+
+-   control.censor_real_time: Depends on you.
+
+-   control.monitor: Depends on you.
+
+## ForGenerators/
+
+### Each skeleton file
+
+-   Confirm each skeleton file first. Previous settings may unintentionally remain.
+
+### CF.parameters.txt
+
+-   No notes now
+
+### EF.Rint.parameters.txt
+
+-   Perhaps, you many need to change the values of hyper-parameters for Time_step.
+
+    -   If a VAF value for a gene is higher than expected especially in post ABC, you may change hyper-parameters so that values of Time_step will appear at higher values.
+
+        -   Vice versa for a VAF value lower than expected.
+
+    -   (If it appears that adjustments are still needed, see Time, columns related to the numbers of cells, genesMalfunc, genesWmutsNoExp, and PointMut_ID in cloneout.txt to change the hyper-parameters.)
+
+### EF.Rother.parameters.txt
+
+-   Check if N_mut is large enough
+
+### Rint.parameters.txt
+
+-   Check if the genes are what you intend when you use this generator.
+
+### cloneinit.parameters.txt
+
+-   Check if the range of the number of poms (pom[[ '*cloneID*' ]]\$dist\$x) is what you intend.
+
+### hallmark_weights.parameters.txt
+
+-   Perhaps, the first choice would be the non-informative Dirichlet distributions:
+
+    -   dist\$\*\$spec: dirichlet
+
+    -   dist\$\*\$alpha.column: NULL
+
+### parameters.parameters.txt
+
+-   It would be better to make a small change at one time.
+
+    -   e.g., to focus only on m0 and dN with hyper-parameters that generate limited ranges of values.
+
+## ForPosts/
+
+### VAF.parameters.txt
+
+-   Check if time is what you intend.
+
+    -   If you want only to see VAFs at the simulation end, set a large number or a number equal or more than control.censor_time_step.
+
+    -   If you want to see the dynamics of VAFs, you can set multiple values you want to monitor.
+
+### TMB.parameters.txt
+
+-   Check if VAF.LOD (and VAF.type) is what you intend.
+
+### evals.parameters\*.txt
+
+-   In particular, check if sim\$n.rep is set as you intended
+
+    and if LOD is appropriately set.
+\
+
+-   Check if obs\${Rother, Rint}\$col.\* indicate the correct column numbers in your observed data.
+
+-   Check if the three glob patterns ({obs, sim}\$Rother\$glob and sim\$glob) are what you intend.
+
+-   Check if sim\$type and sime\$tc are what you intend.
+
+### realTime.parameters.txt
+
+#### When you use VDT
+
+-   Check if VDT\$VDT.days is what you intend.
+
+-   Check if the **number of simulated tumor cells** in the **time zone** is roughly in an exponential growth.
+
+    -   The **number of simulated tumor cells**: Check the number of primary or metastatic cells in simulations, depending on the cell type you intend
+
+    -   The **time zone**: indicated by VDT\${t1, t2}
+
+    -   Check the rough number of VDT\${n1, n2}
+
+    -   Shift the time zone if it greatly differs from an exponential growth.
+
+## DATA/
+
+### CCDS.current.my.txt
+
+-   Check if the bld version of CCDS.current.my.txt matches with that of observed data.
+
+    The given CCDS.current.my.txt is a copy of either CCDS.current.Hs37.my.txt (Bld. 37) or CCDS.current.Hs38.my.txt (Bld. 38).
+
+-   When it does not match, copy a right one under this directory .

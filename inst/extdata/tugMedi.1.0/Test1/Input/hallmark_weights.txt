@@ -1,0 +1,12 @@
+Hallmark	Gene	Weight
+apoptosis	APC	0.175929082528412
+apoptosis	KRAS	0.130990057029998
+apoptosis	TP53	0.693080860441591
+growth	APC	0.382692258254792
+growth	KRAS	3.14938312488875e-68
+growth	TP53	0.617307741745208
+angiogenesis	KRAS	0
+angiogenesis	TP53	1
+immortalization	KRAS	0.834752031
+immortalization	TP53	0.165247969
+invasion	TP53	1

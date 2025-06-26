@@ -1,0 +1,3 @@
+cloneID	Ncells	Type	Gene	Chr	Chr_stt	Chr_end	Pchr	DrvPss
+1	1	pom	APC	5	112840618	NA	1	drv
+# NAs can be inserted into the mutation data for clones without mutations.

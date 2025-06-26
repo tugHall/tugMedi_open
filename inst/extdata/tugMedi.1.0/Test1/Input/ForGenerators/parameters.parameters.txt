@@ -1,0 +1,14 @@
+#Parameter	Value
+skeleton	./Input/ForGenerators/parameters.skeleton.txt
+out	./Input/parameters.txt
+
+dist$m0$spec	sample
+dist$m0$x	c(1e-9, 5e-9)
+dist$m0$prob	rep(1, 2)
+
+dist$dN$spec	norm
+dist$dN$a	0
+dist$dN$b	Inf
+dist$dN$mean	2e-02
+dist$dN$sd	1e-02
+
