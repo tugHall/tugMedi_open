@@ -1,0 +1,10 @@
+#Parameter	Value
+input.Rother	'./Input/Rother.txt'
+input.VAF	'./Output/VAF/VAF.txt'
+input.CCDSdatabase	'./Input/DATA/CCDS.current.my.txt'
+
+out	'./Output/Info/TMB.txt'
+
+VAF.type	'VAF_primary'
+VAF.LOD	0.05	# Limit Of Detection
+

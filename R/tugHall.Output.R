@@ -162,7 +162,7 @@ write_cloneout <- function( outfile, env, clones, onco_clones ) {
                 'k', 'K', 'N_normal_intact',	'N_normal_speckled', 'Nmax', 'N_primary', 'N_metastatic',
                 'Ha', 'Him', 'Hi', 'Hd', 'Hb', 'Type', 'mutden',
                 'total_divIdx',
-                'genesMalfunc', 'genesWmutsNoExp',
+                'genesDysfunc', 'genesWmutsNoDys',
                 'PointMut_ID', 'CNA_ID' )
     if ( debugging == F ){
         header <- c( common )

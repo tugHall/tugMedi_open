@@ -7,19 +7,13 @@
 #'
 #' @examples
 #' copy_test_data()
-copy_test_data <- function( subdir = './' ){
+copy_test_data <- function( target.dir = './' ){
 
-   path.dir  <- system.file( paste0( 'extdata/', subdir), package = 'tugMedi', mustWork = T )
-   path.glob <- paste0( path.dir, '/*' )
-   dirs      <- Sys.glob( path.glob )
+   path.dir <- system.file( paste0( 'extdata/', target.dir ), package = 'tugMedi', mustWork = T )
    
-   if ( !file.exists( subdir ) ){
-       dir.create( subdir )
-   }
-   
-   for ( dir in dirs ) {
-      file.copy( dir, subdir, recursive = T, overwrite = F )
-   }
+   file.copy( from = list.files( path.dir, full.names = TRUE ), 
+              to   = getwd(), 
+              recursive = T, overwrite = F )
 
 }
 

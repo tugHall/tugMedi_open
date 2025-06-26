@@ -28,17 +28,19 @@ knitr::opts_chunk$set(
 
     `copy_test_data("./tugMedi.1.0/")`
 
-    You will get Test1/, Test2/, ..., under this specified directory.
+    You will get Test1/, Test2, ... under the current directory.
 
-3.  Run a test.
+3.  Move into Test1/ and run a test.
+
+    `setwd("Test1/")`
 
     `source("test1.R")`
 
-    You will get a new Output/ under the test directory.
+    You will get a renewed Output/ under this test directory.
 
 -   Alternatively, you can `q()` after `copy_test_data()`.
 
-    Then, after moving into the test directory on your OS,
+    Then, after moving into the test directory, on your OS,
 
     `Rscript --vanilla --slave test1.R`
 
@@ -84,12 +86,12 @@ These commands take in the outputs of the simulation and perform post processes 
 
 ```         
 write_VAF(   input = './Input/ForPosts/VAF.parameters.txt' )
-write_evals( input = './Input/ForPosts/evals.parameters.txt' )
 write_TMB(   input = './Input/ForPosts/TMB.parameters.txt' )
+write_evals( input = './Input/ForPosts/evals.parameters.txt' )
 write_realTime_clone( input = './Input/ForPosts/realTime.parameters.txt' )
 ```
 
-`write_evals()` and `write_TMB()` use the output of `write_VAF()`.
+`write_TMB()` and `write_evals()` use the output of `write_VAF()`.
 
 See the section of Post processes for the details of these functions.
 
@@ -97,30 +99,26 @@ See the section of Post processes for the details of these functions.
 
 ```         
 start_simulation( first       = F,
-                  input_files = 'Input/DATA/FILES.txt', 
+                  input_files = 'Input/DATA/FILES.drgInt.txt', 
                   loadFrom    = 'Output/Results.sim.01.RDS', 
                   saveTo      = 'Output/Results.sim.02.RDS', 
                   seed        = NA,
-                  change_parameters =
-                     list( control.censor_cell_number = 1e15,
-                           control.censor_time_step   = pck.env$env$T + time_max_add ),
                   drug_int_param = drug_int_param
                  )
 ```
 
-One can simulate how moleculary targeted drugs take effect on cancer cells with this command. Because drug intervention simulation usually takes advantage of the results of the first simulation, option `first` is `F`. The results of the first simulation are loaded with `loadFrom`, and the results of drug intervention simulation are saved to `saveTo`. This second simulation starts from the next to the last time step of the first simulation. As with the first simulation, input data are defined through `input_files` and the random seed can be set with `seed`.
+One can simulate how moleculary targeted drugs take effect on cancer cells with this command. Because drug intervention simulation usually takes advantage of the results of the first simulation, option `first` is `F`. The results of the first simulation are loaded with `loadFrom`, and the results of drug intervention simulation are saved to `saveTo`. As with the first simulation, input data are defined through `input_files` and the random seed can be set with `seed`.
 
-Parameters can be changed through `change_parameters`. As shown above, you can extend the censors (program stop) of the maximum cell number (`control.censor_cell_number`) and maximum simulation time step (`control.censor_time_step`).
-
-`control.censor_time_step` is set with `time_max_add`:
+To continue from the first simulation, it is necessary to update the first RDS file before the second simulation by the command:
 
 ```         
-time_max_add   <-  5
+update_RDS_from_output( in.file  = 'Input/DATA/FILES.txt', 
+                        rds.file = 'Output/Results.sim.01.RDS' )
 ```
 
-Because `pck.env$env$T` corresponds to the last time step of the first simulation, this drug intervention simulation will run 5 simulation time steps.
+By this, simulation parameters can be changed through the input data at the second simulation. Typically, you may extend `control.censor_cell_number` (the censor [program stop] of the maximum cell number) and `control.censor_time_step` (maximum simulation time step) in the input data for drug intervention. (In this example, the second simulation command reads `input_files = 'Input/DATA/FILES.drgInt.txt'` to use parameters.[drgInt]{.underline}.txt, an input file different from parameters.txt, used in the first simulation.) The second simulation starts from the next to the last time step of the first simulation. The last state of clones can be changed through editing an output file named cloneout.txt. See Chapter 11 for further details.
 
-`drug_int_param` is set as follows:
+`drug_int_param` in the second simulation command is set as follows:
 
 ```         
 drug_int_param <- list( 'kill_prob' = 0.5,
@@ -128,9 +126,7 @@ drug_int_param <- list( 'kill_prob' = 0.5,
                         'gene' = c('KRAS', 'APC') ) # Any of them is a target
 ```
 
-Cells with any of the genes indicated by `'gene'` in the malfunctional state are the targets of "kill" or "block" operations. The kill operation kills cells at the rate of `'kill_prob'` per simulation time step. The block operation blocks the malfunction state of the genes, i.e., revert the malfunction state ('1', indicating the malfunction) to the normal state ('0', the normal state) of the genes in the program. This blocking is performed on cells randomly selected at the rate of `'block_prob'` per simulation time step.
-
-A combination therapy is mimicked by indicating two or more genes to `'gene'`.
+Cells with any of the genes indicated by `'gene'` in the dysfunctional state are the targets of "kill" or "block" operations. The kill operation kills cells at the rate of `'kill_prob'` per simulation time step. The block operation blocks the dysfunctional state of the genes, i.e., revert the dysfunctional state ('1', indicating the dysfunction) to the normal state ('0', the normal state) of the genes in the program. This blocking is performed on cells randomly selected at the rate of `'block_prob'` per simulation time step.
 
 ## Outputs
 
@@ -152,16 +148,16 @@ See the section of Output data for the details of these outputs.
 
 ### Cancer-cell evolution
 
-In short, you can first see cloneout.txt. Simulation time step represented in column Time increases with the rows. Column N_primary, meaning the number of cells in the primary tumor, or N_metastatic, the number of cells in the metastatic tumor, increases with the time, or at some time point, may become 0, which means extinction. Column ID, i.e., clone ID, shows various IDs with the time, which means intra-tumor heterogeneity (ITH).
+In short, you can first see cloneout.txt. Simulation time step represented in column Time increases with the rows. Column N_primary, meaning the number of cells in the primary tumor, and N_metastatic, the number of cells in the metastatic tumor, may increase with the time or become 0 at some time point, the latter of which means extinction. Column 'ID', i.e., clone ID, shows various clones over the time, which means intra-tumor heterogeneity (ITH).
 
-Columns genesMalfunc and genesWmutsNoExp show genes in the malfunctional state and genes with mutations not expressed, respectively. Mutations not expressed are mostly passenger mutations, but the situation may be complex if the genes are defined as recessive. If so, mutations not expressed can be driver mutations because recessive genes need to have driver mutations on both parental chromosomes to turn into the malfunctional state.
+Columns genesMalfunc and genesWmutsNoExp show genes in the malfunctional state and genes with mutations not causing the malfunction, respectively. The latter genes are mostly passenger mutations, but the situation may be complex if the genes are defined as recessive. Under the recessive, such mutations can be driver mutations because recessive genes need to have driver mutations on both parental chromosomes to cause the malfunction.
 
 Columns PointMut_ID and CNA_ID show the IDs of point mutations and CNAs, respectively. They are driver or passenger mutations. The detailed information is stored under Mutations/.
 
 Different clones have different mutations (point mutations and CNAs). But, if clones are metastatic clones as shown in column Type, clones with the same mutations may appear because primary clones that keep the same mutations seed metastatic clones at different time steps, as distinguishable in column Birth_time.
 
-Each clone can have different trial probabilities (columns d to im) and different hallmark variable values (Hd to Hb).
+Different clones have different trial probabilities (columns d to im) and different hallmark variable values (Hd to Hb).
 
 ### Drug intervention simulation
 
-In cloneout.txt, you may see a decrease of N_primary or N_metastatic at last time steps. This results from the drug intervention simulation. Only clones with specified target genes should decrease, as shown in column N_cells, which represents the number of cells in each clone.
+In cloneout.txt, you may see a decrease of N_primary or N_metastatic at last time steps. This results from the drug intervention simulation. Only clones with specified target genes decrease as shown in column N_cells, which represents the number of cells in each clone.

@@ -1,0 +1,50 @@
+
+
+
+## Exec drgInt params ===========================================================================================
+### mkdir directory of drg int 
+### Move under drg int directory you made. 
+### Change: TCGA-55-7903-01A-11D-2167-08/
+### Remove echo to execute. 
+
+
+ls ../TCGA-55-7903-01A-11D-2167-08/ | xargs -i -P 50 echo sh -c 'mkdir {}; cd {}; mkdir Output R; cd Output; mkdir Info Mutations VAF; ' 
+
+
+### Change: TCGA-55-7903-01A-11D-2167-08
+### Change: Results.sim.01.RDS
+### Replace less with the following to execute: 
+### parallel --eta 
+
+
+ls -d ../TCGA-55-7903-01A-11D-2167-08/* | awk -F'/' '{print $2, $3}'| xargs -n 2 sh -c 'echo "cd $1; ln -s ../../$0/$1/Input ./; cd Output; ln -s ../../../$0/$1/Output/Results.sim.01.RDS ./; cd ../R; ln -s ../../../$0/$1/R/* ./; cd ..; cd .. "' | less 
+
+
+## xeno
+#ls -d ../tolsel_tumor_content\=0.50_tol\=0.010_rejection_03xeno/* | awk -F'/' '{print $2, $3}'| xargs -n 2 sh -c 'echo "cd $1; ln -s ../../$0/$1/Input ./; cd Output; ln -s ../../../$0/$1/Output/Results.sim.03.RDS ./; cd ..; cd R; ln -s ../../../$0/$1/R/*[!test3.7_drg.R]* ./; cd ..; cd .. "' | less 
+
+## case, 7b_drg
+#ls -d ../tolsel_tumor_content\=0.80_tol\=0.005_rejection/* | awk -F'/' '{print $2, $3}'| xargs -n 2 sh -c 'echo "cd $1; ln -s ../../$0/$1/Input ./; cd Output; ln -s ../../../$0/$1/Output/Results.sim.01.RDS ./; cd ..; cd R; ln -s ../../../$0/$1/R/*[!test3.7b_drg.R]* ./; cd ..; cd .. "' | less 
+
+
+### drg int script
+### Chance: drug condition
+### Remove echo to execute. 
+ls |xargs -i -P 50 echo sh -c 'cp -f ../../../test2.5_drg.R {} ' 
+
+#ls |xargs -i -P 50 echo sh -c 'cp -f ../../../R/test3.7_drg.R {}R/ ' 
+
+#ls |xargs -i -P 50 echo sh -c 'cp -f ../../../R/test3.7b_drg.R {}R/ ' 
+
+rm */Output/cloneout.drg.txt   # rm may be needed because of append 
+
+
+### Change: test2.5_drg.R
+### Replace less with the following to execute: 
+### parallel --eta 
+### Or, 
+### parallel --silent & 
+ls |xargs -i echo sh -c "'cd {}; Rscript --vanilla --slave ./test2.5_drg.R 1>/dev/null 2> stderr.drg.txt; cd ../'" | less 
+
+
+

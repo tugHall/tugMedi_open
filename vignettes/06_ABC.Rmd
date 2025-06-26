@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 # Approximate Bayesian Computation (ABC)
 
-You can perform parallel execution and subsequent ABC. See scripts/ABC/abc.\* in the gitHub repository for the scripts and examples.
+You can perform parallel execution and subsequent ABC. See scripts/prmEst.ABC/abc.\* in the gitHub repository for the scripts and examples.
 
 ## Scripts
 
@@ -39,8 +39,8 @@ You can perform parallel execution and subsequent ABC. See scripts/ABC/abc.\* in
 ```         
 # First ABC round
 # You need to have Input/ and R/ here.
-# You need to chmod abc.run.sh to be executable.
-# You may need to change the newline code (for Linux's or Win's).
+# You need to chmod abc.run{,_qsub}.sh to be executable.
+# You may need to change the newline code (for Linux's or Win's) of abc.*.
 cp scripts/ABC/abc.*.{sh,R} .
 cp -a inst/extdata/Test1/Input .
 Rscript abc.a.01_make_list.R abc.01_config.R
@@ -61,11 +61,11 @@ Rscript abc.d_exec_calc.R abc.02_config.R
 
 -   `abc.XX_config.R`: Configuration file explained below in **ABC configuration file**.
 
--   Internally uses **a script to run in parallel**, specified by `run_script` such as `abc.01_run.R` in the configuration file.
+-   Internally uses a script specified by `run_script`, such as `abc.01_run.R`, in the configuration file.
 
-    -   Change this script according to your purpose.
+    -   This script is run in parallel. Change this script according to your purpose.
 
--   Internally uses `abc.run.sh`.
+-   Internally uses `abc.run{,_qsub}.sh`.
 
 ### Outputs
 
@@ -86,7 +86,7 @@ Rscript abc.d_exec_calc.R abc.02_config.R
 
 ### Notes
 
--   This script is simple. You may need to change parameters written in this script.
+-   This script is simple. You may need to change option parameters written in this script (especially, \_qsub.sh) for parallel computation.
 
 ## abc.c_make_data.R and abc.d_exec_calc.R
 
@@ -159,7 +159,7 @@ Rscript abc.d_exec_calc.R abc.02_config.R
 ### Example 1
 
 ```         
-## Your working directory with R/, Input/, and abc.run.sh. 
+## Your working directory with R/, Input/, and abc.run{,_qsub}.sh. 
 base_dir <- './'
 
 
@@ -209,7 +209,7 @@ generator_dir <- 'work/first/%06d'
 
 ```         
 <ABC>/<Sample Name>:
-- param_mat.txt: Parametes         , data for abc() of library abc
+- param_mat.txt: Parameters        , data for abc() of library abc
 - sumstat_*.txt: Summary statistics, data for abc() of library abc
 - target_*.txt:  Target            , data for abc() of library abc
 ```
@@ -221,3 +221,9 @@ generator_dir <- 'work/first/%06d'
 - TOLSel_rejection_*.txt: Selected simulation replications,         by abc()
 - ABC_dist_*.txt: Distance between observation and each simulation, by abc()
 ```
+
+## Bayesian optimization
+
+To obtain a point estimate from a joint posterior distribution implied by points selected through ABC, scripts/prmEst.BayesianOptim/\* in the gitHub repository may be useful.
+
+The scripts estimate the optimal point (a combination of parameter values) with shortest ABC distance.

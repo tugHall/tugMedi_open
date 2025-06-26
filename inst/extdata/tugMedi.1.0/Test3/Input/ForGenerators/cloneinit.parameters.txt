@@ -1,0 +1,10 @@
+#Parameter	Value 
+input.Rother	'./Input/Rother.txt'
+input.CCDSdatabase	'./Input/DATA/CCDS.current.my.txt'
+
+skeleton	./Input/ForGenerators/cloneinit.skeleton.txt
+out	./Input/cloneinit.txt
+
+pom[[ '1' ]]$dist$spec	'sample'
+pom[[ '1' ]]$dist$x	0:5
+pom[[ '1' ]]$dist$prob	rep(1, 6)

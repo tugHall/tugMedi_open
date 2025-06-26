@@ -1,0 +1,195 @@
+
+
+
+### percentile versus # of cells ====================================================
+
+
+library(ggplot2)
+
+
+## V1: percentile
+## V2: # of cells
+d <- read.table( "clipboard", head=F )
+
+
+xxline <- 53
+yyline <- 1e6
+
+
+data <- d
+
+uu <- ggplot(data, aes(x = V1, y = V2)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  geom_hline(yintercept = yyline, linetype = "dashed", color = "red",   linewidth = 1) + 
+  geom_vline(xintercept = xxline, linetype = "dashed", color = "red", linewidth = 1) + 
+  scale_y_log10() +
+  labs(
+    x = "Percentile",
+    y = "Number of cells at 5 years"
+  ) +
+  theme(   
+  axis.text.x  = element_text(size = 20, face = "bold"), 
+  axis.text.y  = element_text(size = 20, face = "bold"), 
+  axis.title.x = element_text(size = 24, face = "bold"), 
+  axis.title.y = element_text(size = 24, face = "bold"), 
+  panel.background = element_rect(fill = "white"),  
+  panel.border = element_rect(color = "black", fill = NA, linewidth = 2), 
+  panel.grid.major = element_line(color = "grey85"),  
+  panel.grid.minor = element_line(color = "grey85") , 
+  legend.text  = element_text(size = 22),  
+  legend.title = element_text(size = 22)  
+  ) 
+uu
+
+
+
+ggsave("tg.recur.png", plot = uu, dpi=600, width = 8, height = 5)
+
+
+
+rm(list = ls())
+graphics.off()
+
+
+
+### ww median ====================================================
+
+
+library(dplyr)
+
+
+
+result <- ww %>%
+  group_by(V3) %>%        
+  summarise(median_value = median(V4)) 
+
+
+print(result)
+
+
+
+### For Synthetic ============================================================================
+
+### get TMB for first/ -------------------------------------------------------------------
+### Move under directory you set. There you see replications 0001/, 0002/, ...
+
+
+ls |xargs -i -P 50 echo sh -c 'cd {}; Rscript --vanilla --slave ../../../test2.6_TMB4first.R 1>/dev/null 2>|stderr.TMB.txt ; cd ../' 
+
+
+
+### weight plot --------------------------------------------------------------------------
+
+
+true <- data.frame(
+  V3 = unique(ww$V3),     
+  V4 = c(0.5, 0.25, 0.25) 
+)
+
+
+pp.out <- 
+  pw + geom_point(data = true, aes(x = V3, y = V4), color = "red", size = 10, shape = 4, stroke = 2)
+pp.out
+
+
+
+### tc plot --------------------------------------------------------------------------
+
+
+col <- c("lightblue", "lightblue", "lightblue", "red") 
+
+
+pt <- ggplot(res, aes(x = factor(tumor_content), y = mean_abs_ME, fill = factor(tumor_content))) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = col) +
+  labs(x = "Tumor content", y = "Average |mean error|\nover poms") +
+  theme(
+    axis.title = element_text(size = 28, face = "bold"), 
+    axis.text = element_text(size = 26, face = "bold"), 
+    panel.background = element_rect(fill = "white"), 
+    panel.grid.major = element_line(color = "gray70"), 
+    panel.grid.minor = element_line(color = "gray70"),
+    legend.position = "none"
+  )
+pt
+
+
+
+### growth plot --------------------------------------------------------------------------
+
+
+t.qus     <- read.table("clipboard", sep = "\t", header = TRUE) 
+
+
+t.init    <- read.table("clipboard", sep = "\t", header = TRUE) 
+
+
+t.mm     <- read.table("clipboard", sep = "\t", header = TRUE) 
+
+
+library(tidyverse)
+qus_50  <- t.qus  %>% filter(quantile == "50%") 
+init_50 <- t.init %>% pull(medn_x) 
+mm_50   <- t.mm   %>% pull(medn_x) 
+
+
+targets <- c( 2 / 12 ) # 
+imaging <- map_dfr( targets, function(target) { 
+  qus_50 %>%
+  filter(abs(V2 - target) == min(abs(V2 - target))) %>%
+  select(-quantile)
+} )
+
+
+
+ppms <- ppm + 
+  geom_vline( xintercept = init_50, linetype = "solid", color = "gray50", size = 1.4 ) + 
+  geom_vline( xintercept = mm_50,   linetype = "solid", color = "gray50", size = 1.4 ) + 
+#  
+  geom_point( data = imaging, aes(x = V2, y = value),   color = "gray50", size = 15.0, shape = 4, stroke = 3 ) + 
+  geom_line(  data = qus_50,  aes(x = V2, y = value),   color = "gray50", size = 1.4, linetype = "solid" ) 
+ppms
+
+
+
+pp.out <- 
+ppms + coord_cartesian( xlim = c(-17, 3), ylim = c(0, 1.5e9) ) + scale_x_continuous(breaks = seq(-50, 30, by = 2)) 
+pp.out
+
+
+
+ggsave("tg.png", plot = pp.out, dpi=2400, width = 8, height = 5)
+
+
+
+pp.out <- 
+ppms + coord_cartesian( xlim = c(  0, 3), ylim = c(0, 2.0e9) ) + scale_x_continuous(breaks = seq(-50, 30, by = 1)) 
+pp.out
+
+
+
+### TMB plot --------------------------------------------------------------------------
+
+
+t.tt <- read.table("clipboard", sep = "\t", header = TRUE) 
+
+
+library(tidyverse)
+tt_50 <- t.tt %>% select(V2, medn_y)
+
+
+pps.tt <- pp.tt + 
+  geom_line(  data = tt_50,  aes(x = V2, y = medn_y),   color = "gray50", size = 1.4, linetype = "solid" ) 
+pps.tt
+
+
+pp.out <- 
+pps.tt + coord_cartesian( xlim = c( -17, 3 ) ) + scale_x_continuous(breaks = seq(-50, 30, by = 2)) 
+pp.out
+
+
+ggsave("TMB.png", plot = pp.out, dpi=2400, width = 8, height = 5)
+
+
+
+

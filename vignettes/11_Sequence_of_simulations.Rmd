@@ -1,0 +1,149 @@
+---
+title: "Sequence of simulations"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Sequence of simulations
+
+## test3.R
+
+The sequence of simulations can be used for emulation of the combined target therapy as a sequential drug intervention with different drugs and treatments.
+
+Please see tugMedi.1.0/test3.R example with a sequence of simulations, and edit it under your way.
+This example shows how one may manage the simulation flow changing parameters set in a sequence of simulations.
+The input, output, generators, and files' formats are described in the corresponding chapters.
+Here, only the organization of the sequential set of simulations is explained.
+
+### First simulation
+
+After generators there is a first simulation (parameter 'first' is TRUE by default, so it can be skipped):
+```         
+start_simulation( first       = T,
+                  input_files = 'Input/DATA/FILES.txt', 
+                  saveTo      = 'Output/Results.sim.01.RDS', 
+                  seed        = NA
+                 )
+```
+
+This command starts a first simulation where usually cancer clones appear and developed. Input data are defined through option `input_files`. Please see the section of Input data for the details of input data. RDS data are saved to `saveTo` for the second simulation, where usually drug intervention is performed. 
+Just after the first simulation the post calculations follow with commands:
+```
+write_VAF(   input = './Input/ForPosts/VAF.parameters.txt' )
+write_TMB(   input = './Input/ForPosts/TMB.parameters.txt' )
+write_evals( input = './Input/ForPosts/evals.parameters.txt' )
+```
+
+Next several simulations are about drug intervention. 
+
+## Drug intervention stages
+
+### First drug intervention
+
+
+The second simulation starts from the next to the last time step of the first simulation. 
+Before the continue of the first simulation, it is necessary to update the first RDS file before the second simulation by the command:
+
+```
+update_RDS_from_output( in.file = 'Input/DATA/FILES.txt', 
+                        rds.file = 'Output/Results.sim.01.RDS' )
+```
+
+By this, pool of clones can be updated in the `rds.file` from an output file (`cloneout.txt`).
+Other input parameters can be changed in other input files in the exactly the same way as for the first simulation using the another list of input files. 
+For example, the second simulation command reads `input_files = 'Input/DATA/FILES.drg1.txt'` to use parameters.[drgInt]{.underline}.txt, an input file different from parameters.txt, used in the first simulation.
+Thus, the simulation parameters can be changed through the input data at the second simulation. Typically, you may extend `control.censor_cell_number` (the censor [program stop] of the maximum cell number) and `control.censor_time_step` (maximum simulation time step) in the input data for drug intervention. 
+
+
+The `drug_int_param` in the second simulation command is set as follows:
+
+```         
+drug_int_param <- list( 'kill_prob' = 0.5,
+                        'block_prob'= 0.0,
+                        'gene' = c('KRAS', 'APC') ) # Any of them is a target
+```
+
+And implementation of the second simulation can be done by:
+
+```
+system.time(
+    start_simulation( first       = F,
+                      input_files = 'Input/DATA/FILES.drg1.txt', 
+                      loadFrom    = 'Output/Results.sim.01.RDS', 
+                      saveTo      = 'Output/Results.sim.02.RDS', 
+                      seed        = NA,
+                      drug_int_param = drug_int_param
+                      #                  drug_int_param = NULL
+    )
+)
+```
+
+Because drug intervention simulation usually takes advantage of the results of the first simulation, option `first` is `F`. 
+The results of the first simulation are loaded with `loadFrom`, and the results of drug intervention simulation are saved to `saveTo`. As with the first simulation, input data are defined through `input_files` and the random seed can be set with `seed`.
+
+
+### Next drug intervention
+
+The next stage of drug intervention is implemented by the same way:
+
+```
+update_RDS_from_output( in.file = 'Input/DATA/FILES.drg1.txt', 
+                        rds.file = 'Output/Results.sim.02.RDS' )
+
+drug_int_param <- list( 'kill_prob' = 0.2,
+                        'block_prob'= 0.3,
+                        'gene' = c('KRAS', 'APC') ) # Any of them is a target
+
+system.time(
+    start_simulation( first       = F,
+                      input_files = 'Input/DATA/FILES.drg2.txt', 
+                      loadFrom    = 'Output/Results.sim.02.RDS', 
+                      saveTo      = 'Output/Results.sim.03.RDS', 
+                      seed        = NA,
+                      drug_int_param = drug_int_param
+    )
+)
+write_realTime_clone( input = './Input/ForPosts/realTime.parameters.txt' )
+```
+
+The difference with the first drug intervention is only in the files' names where
+the input files are from output of the previous simulation:
+
+`rds.file = 'Output/Results.sim.02.RDS'`
+`loadFrom    = 'Output/Results.sim.02.RDS'`
+`input_files = 'Input/DATA/FILES.drg2.txt'`
+
+And also, `drug_int_param` is changed to represent another target drug.
+
+This procedure can be repeated many times under condition of the change of files' names.
+
+## Outputs
+
+### Output/
+
+You will get a new Output/, which has:
+
+-   cloneout.txt: Simulation result of cancer-cell evolution.
+-   cloneout.realTime.txt: Estimated real time is added to cloneout.txt.
+-   Results.sim.01.RDS: RDS data for the first simulation.
+-   Results.sim.02.RDS: RDS data for the second (first drug intervention) simulation.
+-   Results.sim.03.RDS: RDS data for the third (second drug intervention) simulation.
+-   Mutations/: Data on point mutations and CNAs are stored.
+-   VAF/: VAF data are stored.
+-   Info/: Other information is stored.
+
+See the section of Output data for the details of these outputs.
+
+

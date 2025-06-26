@@ -26,7 +26,7 @@ get_flow_data <- function( cloneoutfile, pom.file, pomA.file, cna.file, time = N
     data_flow  =  data_out[ which( !data_out$AvgOrIndx == "avg" ), ]
 
     nms  =  names( data_flow )
-    nms_exclude  =  c( 'Type', 'genesMalfunc', 'genesWmutsNoExp', 'PointMut_ID', 'CNA_ID' )
+    nms_exclude  =  c( 'Type', 'genesDysfunc', 'genesWmutsNoDys', 'PointMut_ID', 'CNA_ID' )
     w_nms  =  as.integer( sapply( X = nms_exclude, FUN = function( x ) which( nms == x ) ) )
 
     clmns  =  ( 1:ncol( data_flow ) )[-w_nms]  #  numeric columns

@@ -446,7 +446,7 @@ check_driver  <-  function( clone1, gene ){
       pom_info$gene  <- as.character( mut_row1[ 1, 'Gene' ] )
       pom_info$pos   <- as.numeric(   mut_row1[ 1, 'Chr_stt' ] )
       pom_info$Chr   <- as.character( mut_row1[ 1, 'Chr' ] )
-      MalfunctionedByPointMut <- ifelse( mut_row1[ 1, 'DrvPssRst' ] != 'pss', TRUE, FALSE )
+      MalfunctionedByPointMut <- ifelse( mut_row1[ 1, 'DrvPssRst' ] == 'drv', TRUE, FALSE )
       
    } else { 
       stop( 'Strange case!' )
@@ -492,7 +492,7 @@ check_driver  <-  function( clone1, gene ){
       cna_info$genes     <- unlist( strsplit( genes, '[, ]+', perl=T ) )
       cna_info$start_end <-    as.numeric( c( mut_row1[ 1, 'Chr_stt' ], 
                                               mut_row1[ 1, 'Chr_end' ] ) )
-      MalfunctionedByCNA <- ifelse( mut_row1[ 1, 'DrvPssRst' ]  != 'pss', TRUE, FALSE )
+      MalfunctionedByCNA <- ifelse( mut_row1[ 1, 'DrvPssRst' ]  == 'drv', TRUE, FALSE )
       
    } else { 
       stop( 'Strange case!' )
@@ -650,10 +650,10 @@ init_clones <- function( clonefile, n_genes ) {
 
       df <- clone$tmp; 
       # Driver mutations
-      for ( gene1 in unique( df[ df$DrvPssRst != 'pss', ]$Gene ) ) { 
-         drv1    <- df[ df$DrvPssRst != 'pss' & df$Gene == gene1 & 
+      for ( gene1 in unique( df[ df$DrvPssRst == 'drv', ]$Gene ) ) { 
+         drv1    <- df[ df$DrvPssRst == 'drv' & df$Gene == gene1 & 
                         as.character(df$Pchr) == '1', ]$Type
-         drv2    <- df[ df$DrvPssRst != 'pss' & df$Gene == gene1 & 
+         drv2    <- df[ df$DrvPssRst == 'drv' & df$Gene == gene1 & 
                         as.character(df$Pchr) == '2', ]$Type
       
          ww <- which( pck.env$DR$gene == gene1 )
@@ -678,7 +678,7 @@ init_clones <- function( clonefile, n_genes ) {
       if ( sum( clone$gene ) > 0 ) clone$primary = TRUE
                 
       # Passenger mutations
-      for ( gene1 in unique( df[ df$DrvPssRst == 'pss', ]$Gene) ) { 
+      for ( gene1 in unique( df[ df$DrvPssRst != 'drv', ]$Gene) ) { 
          clone$pasgene[ which( pck.env$onco$name == gene1 ) ] <- 1
       }
    }

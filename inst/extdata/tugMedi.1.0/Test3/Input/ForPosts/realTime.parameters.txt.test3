@@ -1,0 +1,12 @@
+#Parameter	Value
+input.cloneout	'./Output/cloneout.txt'
+out	'./Output/cloneout.realTime.txt.test3'
+
+realTumorSize$V1.mm3	1e2
+realTumorSize$V2.mm3	2e2
+realTumorSize$Ntype	'N_metastatic'
+realTumorSize$deltaT.days	200
+
+outUnit	'year'
+col.replace	F
+

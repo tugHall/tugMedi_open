@@ -1,0 +1,25 @@
+#Parameter	Value
+obs$sample	'TCGA-DM-A28E-01A-11D-A16V-10'
+
+obs$Rint$file	'./Input/Samples/samples.Rint.txt'
+obs$Rint$col.gene	1
+obs$Rint$col.sample	6
+obs$Rint$col.VAF	11
+
+obs$Rother$file	'./Input/Samples/samples.Rother.txt'
+obs$Rother$col.gene	1
+obs$Rother$col.sample	6
+obs$Rother$col.VAF	11
+obs$Rother$glob	'_*'
+
+sim$glob	'./Output*/VAF/VAF.txt'
+sim$type	'VAF_primary'	# VAF type
+sim$tc	c( 1.0, 0.8, 0.6 )	# tumor content
+sim$n.rep	4
+sim$Rother$glob	'_*'
+
+LOD	0.1	# Limit Of Detection
+
+out.stats	'./Output/Info/evals.stats.txt'
+out.obs_sims	'./Output/Info/evals.obs_sims.txt'
+

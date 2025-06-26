@@ -1,0 +1,173 @@
+
+
+
+## TC by mean abs(ME) from evals file =========================================================================
+
+
+
+library(ggplot2)
+library(dplyr)
+
+## clipboard <- entire evals.stats.pre.txt with HEAD
+dd <- read.table( "clipboard", head=T )
+
+
+# VAF cutoff
+VAFcut <- 0.1 
+
+res <- dd %>%
+  filter(obs >= VAFcut, sim.mean >= VAFcut) %>%  
+  mutate(tumor_content = as.character(tumor_content), 
+         tumor_content = ifelse(tumor_content == "1", "1.0", tumor_content),
+         abs_ME = abs(ME)) %>%  
+  group_by(tumor_content = as.character(tumor_content)) %>%
+  summarise(mean_abs_ME = mean(abs_ME, na.rm = TRUE))
+res
+
+#
+col <- c("lightblue", "lightblue", "lightblue", "lightblue")
+pt <- ggplot(res, aes(x = factor(tumor_content), y = mean_abs_ME, fill = factor(tumor_content))) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = col) +
+  labs(x = "Tumor content", y = "Average |mean error|\nover poms") +
+  theme(
+    axis.title = element_text(size = 28, face = "bold"), 
+    axis.text = element_text(size = 26, face = "bold"), 
+    panel.background = element_rect(fill = "white"), 
+    panel.grid.major = element_line(color = "gray70"), 
+    panel.grid.minor = element_line(color = "gray70"),
+    legend.position = "none"
+  )
+pt
+pp.out <- pt 
+
+
+ggsave("tc.png", plot = pp.out, dpi=2400) 
+
+
+
+rm(list = ls())
+graphics.off()
+
+
+
+## VAF plot from evals file ========================================================================================
+
+
+
+library(ggplot2)
+## V1: gene
+## V2: obs VAF
+## V3: sim VAF
+dd <- read.table( "clipboard", head=F )
+
+
+ee <- dd
+
+# gene name change
+ee$V1 <- gsub("_Rother\\.(\\d+)", "Top \\1", dd$V1)
+ee$V1 <- gsub("\\.1", "", ee$V1)
+#ee$V1 <- gsub("\\..*", "", ee$V1)
+
+
+# top n
+top_n <- 10 # 
+n_driver <- nrow(ee) - sum(grepl("^Top", ee$V1))
+ee <- ee[1:(n_driver + top_n), ]
+
+# sort on x-axis
+group_top <- ee[ grepl("^Top", ee$V1), ]
+group_drv <- ee[!grepl("^Top", ee$V1), ]
+sorted_top <- group_top[order(group_top$V2, decreasing = TRUE), ]
+sorted_drv <- group_drv[order(group_drv$V2, decreasing = TRUE), ]
+new_order <- c( sorted_drv$V1, sorted_top$V1 )
+
+
+#ylim <- c( 0, 1 )
+ylim <- c( 0, 0.6 ) # 
+#ylim <- c( 0, 0.5 ) # 
+
+pv <- ggplot(ee, aes(x = factor(V1, levels = new_order))) +  
+  geom_point(aes(y = V2), color = "red",  size = 6, shape = 1) +  
+  geom_point(aes(y = V3), color = "blue", size = 6, shape = 4) + 
+  scale_y_continuous(limits = ylim) +  
+  labs(x = "", y = "VAF") +  
+  theme_minimal() +  
+  theme(   
+    axis.text.x  = element_text(size = 26, face = "bold", angle = 90, vjust = 0.5, hjust=1 ), 
+    axis.text.y  = element_text(size = 26, face = "bold"), 
+    axis.title.x = element_text(size = 28, face = "bold"), 
+    axis.title.y = element_text(size = 28, face = "bold"), 
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 2), 
+    panel.grid.major = element_line(color = "grey85"),  
+    panel.grid.minor = element_line(color = "grey85")   
+  ) 
+pv
+pp.out <- pv 
+
+
+ggsave("vafFit.png", plot = pp.out, dpi=2400) 
+
+
+
+rm(list = ls())
+graphics.off()
+
+
+
+## Ensemble plot of weights ========================================================================================
+
+### Move under directory you set. There you see replications 0001/, 0002/, ...
+### All
+ls | xargs -I{} awk -v OFS="\t" '$1=="growth" {print FILENAME, $0}' {}Input/hallmark_weights.txt > ../ensemble.weights.txt 
+
+
+### Bests 
+awk '$0 !~ /param/ { printf "%06d/\n", $0 }' ../../ABC2/TCGA-55-7903-01A-11D-2167-08/TOLSel_rejection_tumor_content\=0.80_tol\=0.010.txt | xargs -I{} awk -v OFS="\t" '$1=="growth" {print FILENAME, $0}' {}Input/hallmark_weights.txt > ../ensemble.01p.weights.txt 
+
+
+library(ggplot2)
+
+# V1: file name
+# V2: hallmark
+# V3: gene
+# V4: weight
+ww <- read.table("clipboard", header=F)
+
+
+### Order
+#ww$V3 <- factor(ww$V3, levels = c("TP53", "BRAF"))
+#ww$V3 <- factor(ww$V3, levels = c("TP53", "BRAF", "EGFR"))
+#ww$V3 <- factor(ww$V3, levels = c("APC", "KRAS", "TP53"))
+ww$V3 <- factor(ww$V3, levels = c("APC", "KRAS", "TP53"))
+
+
+pw <- 
+ggplot(ww, aes(x = V3, y = V4)) +
+   geom_boxplot(fill = "green", size = 1) +
+  labs(x = "Gene", y = "Estimated weight\non cell division") +
+  ylim(0, 1) +
+  theme_minimal() + 
+  theme( 
+    axis.text.x  = element_text(size = 20, face = "bold"), 
+    axis.text.y  = element_text(size = 20, face = "bold"), 
+    axis.title.x = element_text(size = 24, face = "bold"), 
+    axis.title.y = element_text(size = 24, face = "bold"), 
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 2), 
+    panel.grid.major = element_line(color = "grey85"),  
+    panel.grid.minor = element_line(color = "grey85"),  
+    legend.position = "none"
+  )
+pw
+pp.out <- pw
+
+
+ggsave("weights.png", plot = pp.out, dpi=2400)
+
+
+
+rm(list = ls())
+graphics.off()
+
+
+

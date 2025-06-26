@@ -78,7 +78,7 @@ This file defines hallmark weights for each gene.\
 
 -   Weight: Weight values.
 
-    -   The values are normalized such that the summation across genes for a hallmark is 1.
+    -   The values will be normalized such that the summation across genes for a hallmark is 1.
 
 ### parameters.txt
 
@@ -88,7 +88,7 @@ This file defines parameters.\
 
 -   m0: Mutation rate of a pom per bp per cell division.
 
--   uo: Rate at which a gene defined as oncogene is malfunctioned by the occurrence of a pom.
+-   uo: Rate at which a gene defined as oncogene is made dysfunctional by the occurrence of a pom.
 
 -   us: Same as above for a suppressor.
 
@@ -114,7 +114,7 @@ This file defines parameters.\
 
 -   ave_len_del: Same as above for a del.
 
--   uo_dup: Rate at which a gene defined as oncogene is malfunctioned by the occurrence of a dup.
+-   uo_dup: Rate at which a gene defined as oncogene is made dysfunctional by the occurrence of a dup.
 
 -   us_dup: Same as above for suppressor. Usually, it may be 0.
 
@@ -236,7 +236,7 @@ This file defines parameters more fixed than parameters.txt and ones under test.
 
 -   kappa: Time-scaling parameter to convert trial probabilities into Poisson
 
-    lambdas. Can be interpreted as the inverse of "temporal resolution".
+    lambdas.
 
 -   tumbler_for_event_enforcement: Switch to turn on/off the EF algorithm.
 
@@ -268,13 +268,13 @@ This file defines parameters more fixed than parameters.txt and ones under test.
 
 ### GENE_TYPE.txt
 
-This file defines the relationship between gene types and malfunction rate types, and the dominant/recessive modes.\
+This file defines the relationship between gene types and dysfunction rate types, and the dominant/recessive modes.\
 
 ***Columns***
 
 -   type: Gene type. Either of 'o', 's', or 'dn', which represent oncogene, suppressor, or dominant negative, respectively.
 
--   u.pom: Malfunction rate type assigned to the gene type for a pom.
+-   u.pom: Dysfunction rate type assigned to the gene type for a pom.
 
 -   u.del: Same as above for a del.
 
