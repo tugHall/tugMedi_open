@@ -470,7 +470,7 @@ Example: --time 1 2 3
     parser.add_argument('--fasta', type=str, help='genome fasta filepath.')
     parser.add_argument('--mode', type=str, default='both', help='Mode to run the program. [convert/calcweight/both, default=both]')
     parser.add_argument('--output', type=str, default="TEST", help='Output directory to save output vcf file. [default=TEST]')
-    parser.add_argument('--seed', action='store_true', help='Use fixed random seed for reproducibility.')
+    parser.add_argument('--seed', action='store_true', help='Use the --seed option to fix the random seed for reproducibility.')
 
 
     #for validation. all 
