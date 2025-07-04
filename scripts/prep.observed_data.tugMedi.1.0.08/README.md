@@ -1,7 +1,3 @@
----
----
----
-
 # Tool for preparing observed data
 
 **Tool Name:** prepare_observed_data.py
@@ -252,31 +248,19 @@ passenger_gene_name_format = "_allGenes_$Chr_ref_$Ref_alt$Alt"
 
 ### Variables usable in GeneSelection and PassengerGeneNameFormat
 
-+---------------+----------------------------+------------------------------+
-| Variables     | Columns                    | Description                  |
-+===============+============================+==============================+
-| \$SampleId    | sample_id_column_index     | Sample ID                    |
-+---------------+----------------------------+------------------------------+
-| \$HugoSymbol  | hugo_symbol_column_index   | Gene name                    |
-+---------------+----------------------------+------------------------------+
-| \$Chr         | chromsome_column_index     | Chromosome number            |
-+---------------+----------------------------+------------------------------+
-| \$Pos         | position_column_index      | Position                     |
-+---------------+----------------------------+------------------------------+
-| \$Ref         | t_ref_column_index         | Reference allele             |
-+---------------+----------------------------+------------------------------+
-| \$Alt         | t_alt_column_index         | Alteration allele            |
-+---------------+----------------------------+------------------------------+
-| \$Rcount      | t_ref_count_column_index   | Number of reference alleles  |
-+---------------+----------------------------+------------------------------+
-| \$Acount      | t_alt_count_column_index   | Number of alteration alleles |
-+---------------+----------------------------+------------------------------+
-| \$TotalCount  | t_total_count_column_index | Total read count for alleles |
-+---------------+----------------------------+------------------------------+
-| \$VAF         | vaf_column_index           | VAF value                    |
-+---------------+----------------------------+------------------------------+
-| \$Filter      | filter_column_index        | FILTER                       |
-+---------------+----------------------------+------------------------------+
+| Variables    | Columns                    | Description                  |
+|--------------|----------------------------|------------------------------|
+| \$SampleId   | sample_id_column_index     | Sample ID                    |
+| \$HugoSymbol | hugo_symbol_column_index   | Gene name                    |
+| \$Chr        | chromsome_column_index     | Chromosome number            |
+| \$Pos        | position_column_index      | Position                     |
+| \$Ref        | t_ref_column_index         | Reference allele             |
+| \$Alt        | t_alt_column_index         | Alteration allele            |
+| \$Rcount     | t_ref_count_column_index   | Number of reference alleles  |
+| \$Acount     | t_alt_count_column_index   | Number of alteration alleles |
+| \$TotalCount | t_total_count_column_index | Total read count for alleles |
+| \$VAF        | vaf_column_index           | VAF value                    |
+| \$Filter     | filter_column_index        | FILTER                       |
 
 ## Program execution
 
@@ -360,19 +344,13 @@ The following example shows output files for all modes, when the output director
     |-prepare_observed_data_20241203_121505.log
 ```
 
-+-----------------------------------------------+-----------------------------------------+
-| Output File                                   | Description                             |
-+:==============================================+:========================================+
-| [Base name of input file]\_tumor-specific.txt | Output file of get-tumor-specific mode  |
-+-----------------------------------------------+-----------------------------------------+
-| [Base name of input file]\_vaf.txt            | Output file of get-vaf mode             |
-+-----------------------------------------------+-----------------------------------------+
-| [Base name of input file].Rint.txt            | Output file of get-driver-genes mode    |
-+-----------------------------------------------+-----------------------------------------+
-| [Base name of input file].Rother.txt          | Output file of get-passenger-genes mode |
-+-----------------------------------------------+-----------------------------------------+
-| xxxxxxxx.log                                  | Log file                                |
-+-----------------------------------------------+-----------------------------------------+
+| Output File | Description |
+|:---|:---|
+| [Base name of input file]\_tumor-specific.txt | Output file of get-tumor-specific mode |
+| [Base name of input file]\_vaf.txt | Output file of get-vaf mode |
+| [Base name of input file].Rint.txt | Output file of get-driver-genes mode |
+| [Base name of input file].Rother.txt | Output file of get-passenger-genes mode |
+| xxxxxxxx.log | Log file |
 
 -   For output files of get-driver-genes step and get-passenger-genes modes
 

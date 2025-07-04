@@ -101,7 +101,7 @@ The Both mode 1) calculates mutation transition probabilities (weights) based on
 ```
 
 | Option | Description |
-|:-----------------|:-----------------------------------------------------|
+|:---|:---|
 | `--mode both` | Specifies the 'both' mode. (Default) |
 | `--cloneout` | Path to the `cloneout.txt` file. |
 | `--pointMutations` | Path to the `pointMutations.txt` file. |
