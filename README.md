@@ -38,14 +38,16 @@ For how to use tugMedi, please see vignettes in the package.
 
 ## Citation
 
--   First version of tugHall
+-   tugMedi 
 
-Iurii S Nagornov, Mamoru Kato. tugHall: a simulator of cancer-cell evolution based on the hallmarks of cancer and tumor-related genes. [Bioinformatics, V.36, N11, June 2020, pp. 3597–3599](https://doi.org/10.1093/bioinformatics/btaa182)
+Iurii Nagornov, Eisaku Furukawa, Momoko Nagai, Shigehiro Yagishita, Tatsuhiro Shibata, Mamoru Kato. tugMedi: simulator of cancer-cell evolution for personalized medicine based on the genomic data of patients. [bioRxiv, 2025, doi: https://doi.org/10.1101/2025.06.27.661855](https://doi.org/10.1101/2025.06.27.661855)
+
 
 -   tugHall 2.0 and 2.1: clone-based version for acceleration of calculation speed
 
-Nagornov, I., Nishino, J., Kato, M. (2020). tugHall: A Tool to Reproduce Darwinian Evolution of Cancer Cells for Simulation-Based Personalized Medicine. In: Mathematical and Computational Oncology. ISMCO 2020. [Lecture Notes in Computer Science, vol 12508. Springer](https://doi.org/10.1007/978-3-030-64511-3_7)
+Nagornov, I., Nishino, J., Kato, M. (2020). tugHall: A Tool to Reproduce Darwinian Evolution of Cancer Cells for Simulation-Based Personalized Medicine. In: Mathematical and Computational Oncology. ISMCO 2020. [Lecture Notes in Computer Science, vol 12508, 71-76. Springer](https://doi.org/10.1007/978-3-030-64511-3_7)
 
--   tugMedi
 
-[bioRxiv, 2025, doi: https://doi.org/10.1101/2025.06.27.661855](https://doi.org/10.1101/2025.06.27.661855)
+-   tugHall 
+
+Iurii S Nagornov, Mamoru Kato. tugHall: a simulator of cancer-cell evolution based on the hallmarks of cancer and tumor-related genes. [Bioinformatics, 2020, 36, 3597–3599](https://doi.org/10.1093/bioinformatics/btaa182)
