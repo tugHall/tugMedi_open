@@ -48,4 +48,4 @@ Nagornov, I., Nishino, J., Kato, M. (2020). tugHall: A Tool to Reproduce Darwini
 
 -   tugMedi
 
-[bioArchive https comes here]
+[bioRxiv, 2025, doi: https://doi.org/10.1101/2025.06.27.661855](https://doi.org/10.1101/2025.06.27.661855)
