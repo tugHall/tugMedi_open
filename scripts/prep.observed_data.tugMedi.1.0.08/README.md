@@ -180,71 +180,32 @@ passenger_gene_exclude_filter = "($VAF < 0.23 && $SampleID ~ /T1_WES/) || ($VAF 
 passenger_gene_name_format = "_allGenes_$Chr_ref_$Ref_alt$Alt"
 ```
 
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Section                 | Item                          | Description                                                                                                                                            |
-+:========================+:==============================+:=======================================================================================================================================================+
-| SampleList              | sample_file                   | The path to the sample list file                                                                                                                       |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Columns                 | sample_id_column_index        | Column number for the sample ID (e.g., Tumor_Sample_Barcode)                                                                                           |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | hugo_symbol_column_index      | Column number for the gene name (Hugo_Symbol [e.g., TP53])                                                                                             |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | chromsome_column_index        | Column number for the chromosome number (e.g., 1, X, Y)                                                                                                |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | position_column_index         | Column number for the mutation start position                                                                                                          |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | t_ref_column_index            | Column number for the reference allele (e.g., A)                                                                                                       |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | t_alt_column_index            | Column number for the alteartion allele                                                                                                                |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | t_ref_count_column_index      | Column number for the count of the reference allele.                                                                                                   |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | t_alt_count_column_index      | Column number for the count of the alteration allele                                                                                                   |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | t_total_count_column_index    | Column number for the total count of the alleles                                                                                                       |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | vaf_column_index              | Column number for the VAF.                                                                                                                             |
-|                         |                               |                                                                                                                                                        |
-|                         |                               | If there is no column for VAF in the input sample, it can remain blank (or not listed).                                                                |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | filter_column_index           | Column number for the FILTER.                                                                                                                          |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | n_alt1_column_index           | Column number for the reference allele of normal sample, only when this allele is defined in different column from that of tumor sample                |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | n_alt2_column_index           | Column number for the alteration allele of normal sample, only when this allele is defined in different column from that of tumor sample               |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | n_alt_count_column_index      | Column number for the count of the alteration allele of normal sample, only when this count is defined in different column from that of tumor sample   |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                         | other_column_index            | Column numbers to include in the final output file other than the above. Multiple columns possible.                                                    |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-| VafMode                 | rewrite_vaf_mode              | Only valid in all mode and get-vaf mode.                                                                                                               |
-|                         |                               |                                                                                                                                                        |
-|                         |                               | -   default:                                                                                                                                           |
-|                         |                               |     -   If there is no VAF column in the input data file, the calculated VAF column is added                                                           |
-|                         |                               |     -   If there is a VAF column, the original VAF value is retained.                                                                                  |
-|                         |                               | -   force: overwrite the VAF column.                                                                                                                   |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-| OutputFormat            | output_format                 | Only valid in get-driver-genes and get-passenger-genes modes.                                                                                          |
-|                         |                               |                                                                                                                                                        |
-|                         |                               | -   all: all columns of the input file are output in the output file.                                                                                  |
-|                         |                               | -   part: only the columns specified in the [Columns] section are output.                                                                              |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-| GeneSelection           | driver_gene_include_filter    | Conditions to include mutations into samples.Rint.txt in awk pattern format.                                                                           |
-|                         |                               |                                                                                                                                                        |
-|                         |                               | Variables shown in the subsequent table can be used to represent columns specified in [Columns].                                                       |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Section                         | Item                          | Description                                                                                                            |
+|:----|:----|:----|
+| SampleList                      | sample_file                   | The path to the sample list file                                                                                       |
+| Columns                         | sample_id_column_index        | Column number for the sample ID (e.g., Tumor_Sample_Barcode)                                                           |
+| | hugo_symbol_column_index      | Column number for the gene name (Hugo_Symbol [e.g., TP53])                                                                                             |
+| | chromsome_column_index        | Column number for the chromosome number (e.g., 1, X, Y)                                                                                                |
+| | position_column_index         | Column number for the mutation start position                                                                                                          |
+| | t_ref_column_index            | Column number for the reference allele (e.g., A)                                                                                                       |
+| | t_alt_column_index            | Column number for the alteartion allele                                                                                                                |
+| | t_ref_count_column_index      | Column number for the count of the reference allele.                                                                                                   |
+| | t_alt_count_column_index      | Column number for the count of the alteration allele                                                                                                   |
+| | t_total_count_column_index    | Column number for the total count of the alleles                                                                                                       |
+| | vaf_column_index              | Column number for the VAF. If there is no column for VAF in the input sample, it can remain blank (or not listed).                                     |
+| | filter_column_index           | Column number for the FILTER.                                                                                                                          |
+| | n_alt1_column_index           | Column number for the reference allele of normal sample, only when this allele is defined in different column from that of tumor sample                |
+| | n_alt2_column_index           | Column number for the alteration allele of normal sample, only when this allele is defined in different column from that of tumor sample               |
+| | n_alt_count_column_index      | Column number for the count of the alteration allele of normal sample, only when this count is defined in different column from that of tumor sample   |
+| | other_column_index            | Column numbers to include in the final output file other than the above. Multiple columns possible.                                                    |
+| VafMode                         | rewrite_vaf_mode              | Only valid in all mode and get-vaf mode.  <br> default: If there is no VAF column in the input data file, the calculated VAF column is added. If there is a VAF column, the original VAF value is retained. <br>  force: overwrite the VAF column.|
+| OutputFormat            | output_format                 | Only valid in get-driver-genes and get-passenger-genes modes. <br> all: all columns of the input file are output in the output file. <br> part: only the columns specified in the [Columns] section are output. |
+| GeneSelection           | driver_gene_include_filter    | Conditions to include mutations into samples.Rint.txt in awk pattern format. Variables shown in the subsequent table can be used to represent columns specified in [Columns]. |
 |                         | driver_gene_exclude_filter    | Conditions to exclude mutations from samples.Rint.txt in awk pattern format.                                                                           |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 |                         | duplicate_gene_mode           | vaf_max (or vaf_min): If there are multiple SNVs/indels for a possible driver gene, one with the highest (or lowest) VAF is selected. Default: vaf_max |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 |                         | passenger_gene_include_filter | Conditions to include mutations into samples.Rother.txt in awk pattern format.                                                                         |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 |                         | passenger_gene_exclude_filter | Conditions to exclude mutations from samples.Rother.txt in awk pattern format.                                                                         |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-| PassengerGeneNameFormat | PassengerGeneNameFormat       | Convert the gene name (Hugo_Symbol) of passenger genes into the name specified in this item.                                                           |
-|                         |                               |                                                                                                                                                        |
-|                         |                               | Variables shown in the subsequent table can be used to represent columns specified in [Columns].                                                       |
-+-------------------------+-------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| PassengerGeneNameFormat | PassengerGeneNameFormat       | Convert the gene name (Hugo_Symbol) of passenger genes into the name specified in this item.  Variables shown in the subsequent table can be used to represent columns specified in [Columns]. |
 
 ### Variables usable in GeneSelection and PassengerGeneNameFormat
 
@@ -315,21 +276,16 @@ $ python prepare_observed_data.py -m get-passenger-genes
 -   Select or exclude mutations that meet the conditions specified in the configuration file for columns such as gene name and VAF.
 -   Gene names are converted into the names specified in the configuration file.
 
-+--------------+-------------------+-----------------------------------------------------------------------+
 | Option       | Required/Optional | Description                                                           |
-+:=============+:=================:+:======================================================================+
-| -m, --model  | Optional          | -   Default: all steps are executed in order.                         |
-|              |                   | -   get-tumor-specific                                                |
-|              |                   | -   get-vaf                                                           |
-|              |                   | -   get-driver-genes                                                  |
-|              |                   | -   get-passenger-genes                                               |
-+--------------+-------------------+-----------------------------------------------------------------------+
+|:----|:----|:----|
+| -m, --model  | Optional          | Default: all steps are executed in order.                         |
+|              |                   | get-tumor-specific                                                |
+|              |                   | get-vaf                                                           |
+|              |                   | get-driver-genes                                                  |
+|              |                   | get-passenger-genes                                               |
 | -i, --input  | Required          | Mutation data file                                                    |
-+--------------+-------------------+-----------------------------------------------------------------------+
 | -c, --config | Required          | Configuration file.                                                   |
-+--------------+-------------------+-----------------------------------------------------------------------+
 | -o, --output | Optional          | Output directory name. If not present, the current directory is used. |
-+--------------+-------------------+-----------------------------------------------------------------------+
 
 ## Output files
 
